@@ -20,9 +20,12 @@ Or install it yourself as:
 
 ## Usage
 
+The code below uses Sinatra to demonstrate how to use the library in a web application.
+This library makes no assumptions about any web framework, you can use it in any way you see fit.
+
 ```ruby
 require 'akasha'
-
+require 'sinatra'
 
 class User < Akasha::Aggregate
   def sign_up(email:, password:, admin: false, **)
@@ -36,27 +39,32 @@ class User < Akasha::Aggregate
   end
 end
 
-router = Akasha::CommandRouter.new
 
-def initialize
-   # Aggregates will load from and save to in-memory storage.
-   repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
-   Akasha::Aggregate.connect!(repository)
+before do
+  @router = Akasha::CommandRouter.new
 
-   # This is how you link commands to aggregates.
-   router.register_default_route(:sign_up, User)
+  # Aggregates will load from and save to in-memory storage.
+  repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
+  Akasha::Aggregate.connect!(repository)
 
-   # Same as above but demonstrating custom command handling
-   router.register_route(:sign_up_admin) do |aggregate_id, **data|
-     user = User.find_or_create(params[:id])
-     user.sign_up(email: params[:email], password: params[:password], admin: true)
-     user.save!
-   end
+  # This is how you link commands to aggregates.
+  @router.register_default_route(:sign_up, User)
+
+  # Nearly identital to the default handling above but we're setting the admin
+  # flag to demo custom command handling.
+  @router.register_route(:sign_up_admin) do |aggregate_id, **data|
+    user = User.find_or_create(aggregate_id)
+    user.sign_up(email: data[:email], password: data[:password], admin: true)
+    user.save!
+  end
 end
 
-post '/signup' do
-  router.route!(:sign_up, params)
-  # ...
+post '/users/:user_id' do # With CQRS client pass unique aggregate ids.
+  @router.route!(:sign_up,
+                 params[:user_id],
+                 email: params[:email],
+                 password: params[:password])
+  'OK'
 end
 ```
 
@@ -64,7 +72,7 @@ end
 
 ## Next steps
 
-- [ ] Command routing (default and user-defined)
+- [x] Command routing (default and user-defined)
 - [ ] EventHandler (relying only on Eventstore)
 - [ ] HTTP Eventstore storage backend
 - [ ] Namespacing for events and aggregates
