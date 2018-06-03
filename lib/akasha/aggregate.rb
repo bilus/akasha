@@ -1,33 +1,21 @@
-require_relative './changeset'
+require_relative 'changeset'
+require_relative 'aggregate/syntax_helpers'
 
 module Akasha
-  module SyntaxHelpers
-    def self.included(base)
-      base.include(InstanceMethods)
-      base.extend(ClassMethods)
-    end
-
-    module ClassMethods
-      def connect!(repository)
-        @@repository = repository
-      end
-
-      def repository
-        @@repository
-      end
-
-      def find_or_create(id)
-        @@repository.load_aggregate(self, id)
-      end
-    end
-
-    module InstanceMethods
-      def save!
-        self.class.repository.save_aggregate(self)
-      end
-    end
-  end
-
+  # CQRS Aggregate base class.
+  #
+  # Usage:
+  #
+  # class User < Akasha::Aggregate
+  #   def sign_up(email, password)
+  #     changeset << Akasha::Event.new(:user_signed_up, email: email, password: password)
+  #   end
+  #
+  #   def on_user_signed_up(email:, password:, **_)
+  #     @email = email
+  #     @password = password
+  #   end
+  # end
   class Aggregate
     include SyntaxHelpers
 
@@ -37,6 +25,8 @@ module Akasha
       @changeset = Changeset.new(id)
     end
 
+    # Replay events, building up the state of the aggregate.
+    # Used by Repository.
     def apply_events(events)
       events.each do |event|
         send(event_handler(event), event.data)

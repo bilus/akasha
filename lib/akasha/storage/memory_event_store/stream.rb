@@ -1,11 +1,13 @@
 module Akasha
   module Storage
     class MemoryEventStore
+      # Memory-based event stream.
       class Stream
-        def initialize()
+        def initialize
           @events = []
         end
 
+        # Appends events to the stream.
         def write_events(events)
           @events += events
         end

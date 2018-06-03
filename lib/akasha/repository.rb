@@ -1,4 +1,7 @@
 module Akasha
+  # Aggregate repository.
+  # Not meant to be used directly (see aggregate/syntax_helpers.rb)
+  # See specs for usage.
   class Repository
     STREAM_NAME_SEP = '-'.freeze
 
