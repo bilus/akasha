@@ -25,25 +25,38 @@ require 'akasha'
 
 
 class User < Akasha::Aggregate
-  def sign_up(email, password)
-    changeset << Akasha::Event.new(:user_signed_up, email: email, password: password)
+  def sign_up(email:, password:, admin: false, **)
+    changeset << Akasha::Event.new(:user_signed_up, email: email, password: password, admin: admin)
   end
 
-  def on_user_signed_up(email:, password:, **)
+  def on_user_signed_up(email:, password:, admin:, **)
     @email = email
     @password = password
+    @admin = admin
   end
 end
 
+router = Akasha::CommandRouter.new
+
 def initialize
+   # Aggregates will load from and save to in-memory storage.
    repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
    Akasha::Aggregate.connect!(repository)
+
+   # This is how you link commands to aggregates.
+   router.register_default_route(:sign_up, User)
+
+   # Same as above but demonstrating custom command handling
+   router.register_route(:sign_up_admin) do |aggregate_id, **data|
+     user = User.find_or_create(params[:id])
+     user.sign_up(email: params[:email], password: params[:password], admin: true)
+     user.save!
+   end
 end
 
-def handle_sign_up_command(params)
-  user = User.find_or_create(params[:id])
-  user.sign_up(params[:email], params[:password])
-  user.save!
+post '/signup' do
+  router.route!(:sign_up, params)
+  # ...
 end
 ```
 

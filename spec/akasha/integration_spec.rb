@@ -1,4 +1,4 @@
-describe 'handling commands' do
+describe 'routing commands' do
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
 
   before do
