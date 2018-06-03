@@ -8,7 +8,7 @@ module Akasha
   #
   # class User < Akasha::Aggregate
   #   def sign_up(email, password)
-  #     changeset << Akasha::Event.new(:user_signed_up, email: email, password: password)
+  #     changeset.append(:user_signed_up, email: email, password: password)
   #   end
   #
   #   def on_user_signed_up(email:, password:, **_)

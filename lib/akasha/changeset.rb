@@ -10,8 +10,8 @@ module Akasha
     end
 
     # Adds an event to the changeset.
-    def <<(event)
-      @events << event
+    def append(event, **data)
+      @events << Akasha::Event.new(event, **data)
     end
   end
 end
