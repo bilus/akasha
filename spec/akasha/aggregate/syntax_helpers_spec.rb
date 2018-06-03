@@ -33,5 +33,13 @@ describe Akasha::SyntaxHelpers do
       item = Item.find_or_create('item-1')
       expect(item.name).to eq('new name')
     end
+
+    it 'ignores subsequent saves without further modifications' do
+      expect(repo).to receive(:save_aggregate).once
+      subject.name = 'new name'
+      subject.save!
+      subject.save!
+      subject.save!
+    end
   end
 end
