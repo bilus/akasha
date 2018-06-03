@@ -1,7 +1,4 @@
-require 'akasha/event'
-require 'akasha/aggregate'
-require 'akasha/repository'
-require 'akasha/storage/memory_event_store'
+require 'akasha'
 
 Dir.glob(File.join(__dir__, 'fixtures/*.rb')).each do |path|
   require_relative(path)
