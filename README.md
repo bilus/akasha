@@ -42,8 +42,7 @@ end
 
 def handle_sign_up_command(params)
   user = User.find_or_create(params[:id])
-  user.email = params[:email]
-  user.password = params[:password]
+  user.sign_up(params[:email], params[:password])
   user.save!
 end
 ```
