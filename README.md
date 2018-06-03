@@ -29,7 +29,7 @@ class User < Akasha::Aggregate
     changeset << Akasha::Event.new(:user_signed_up, email: email, password: password)
   end
 
-  def on_user_signed_up(email:, password:, **_)
+  def on_user_signed_up(email:, password:, **)
     @email = email
     @password = password
   end
