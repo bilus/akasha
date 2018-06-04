@@ -7,6 +7,7 @@ module Akasha
 
     def initialize(store)
       @store = store
+      @subscribers = []
     end
 
     def load_aggregate(klass, id)
@@ -24,6 +25,12 @@ module Akasha
     def save_aggregate(aggregate)
       changeset = aggregate.changeset
       stream(aggregate.class, changeset.aggregate_id).write_events(changeset.events)
+      notify_subscribers(aggregate)
+    end
+
+    def subscribe(lambda = nil, &block)
+      callable = lambda || block
+      @subscribers << callable
     end
 
     private
@@ -34,6 +41,16 @@ module Akasha
 
     def stream(aggregate_klass, aggregate_id)
       @store.streams[stream_name(aggregate_klass, aggregate_id)]
+    end
+
+    def notify_subscribers(aggregate)
+      id = aggregate.changeset.aggregate_id
+      events = aggregate.changeset.events
+      @subscribers.each do |subscriber|
+        events.each do |event|
+          subscriber.call(id, event)
+        end
+      end
     end
   end
 end

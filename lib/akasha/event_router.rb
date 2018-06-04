@@ -8,6 +8,10 @@ module Akasha
       @routes[event_name] = listener_class
     end
 
+    def call(aggregate_id, event)
+      route(event.name, aggregate_id, **event.data)
+    end
+
     def route(event_name, aggregate_id, **data)
       listener_class = @routes[event_name]
       return if listener_class.nil?
