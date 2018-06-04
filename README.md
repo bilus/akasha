@@ -73,11 +73,12 @@ end
 ## Next steps
 
 - [x] Command routing (default and user-defined)
-- [ ] EventHandler (relying only on Eventstore)
+- [x] Synchronous EventHandler
 - [ ] HTTP Eventstore storage backend
+- [ ] Telemetry (Dogstatsd)
 - [ ] Namespacing for events and aggregates
 - [ ] Version-based concurrency
-- [ ] Rake task for running EventHandlers
+- [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
 - [ ] Socket-based Eventstore storage backend
 
 ## Development
