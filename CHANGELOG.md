@@ -1,5 +1,9 @@
 # Changelog
 
+## Version TBD
+
+* Synchronous event listeners (see `examples/sinatra/app.rb`).
+
 
 ## Version 0.1.0
 
