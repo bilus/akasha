@@ -3,7 +3,7 @@ class Item < Akasha::Aggregate
 
   # Attribute accessors can use events too!
   def name=(new_name)
-    changeset << Akasha::Event.new(:name_changed, old_name: @name, new_name: new_name)
+    changeset.append(:name_changed, old_name: @name, new_name: new_name)
   end
 
   # Alias for default command routing.
