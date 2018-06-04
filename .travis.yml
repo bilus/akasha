@@ -1,0 +1,49 @@
+# Enables Travis to use their new container-based infrastructure
+sudo: false
+
+# Build for Ruby
+language: ruby
+
+# Enables caching for bundler
+cache: bundler
+
+# Passes arguments to bundle install (http://gembundler.com/man/bundle-install.1.html)
+# bundler_args:
+
+before_install:
+  - gem update --system
+  - gem update bundler
+
+# Specify which ruby versions you wish to run your tests on, each version will be used
+rvm:
+  - 2.2.9
+  - 2.3.6
+  - 2.4.3
+  - 2.5.0
+
+# Define how to run your tests (defaults to `bundle exec rake` or `rake` depending on whether you have a `Gemfile`)
+script: "bundle exec rake"
+
+# Define tasks to be completed before and after tests run . Will allow folding of content on frontend
+#before_script:
+#  - command_1
+#  - command_2
+#
+#after_script:
+#  - command_1
+#  - command_2
+
+# Specify the recipients for email notification
+#notifications:
+#  recipients:
+#    - email-address-1
+#    - email-address-2
+
+# Disable email notifications
+#notifications:
+#  disabled: true
+
+# notifications:
+#   webhooks:
+#     urls:
+#       - https://webhooks.gitter.im/e/c6dbb9323007dfcf81df
