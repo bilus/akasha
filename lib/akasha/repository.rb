@@ -5,11 +5,15 @@ module Akasha
   class Repository
     STREAM_NAME_SEP = '-'.freeze
 
+    # Creates a new repository using the underlying `store` (e.g. `MemoryEventStore`).
     def initialize(store)
       @store = store
       @subscribers = []
     end
 
+    # Loads an aggregate identified by `id` and `klass` from the repository.
+    # Returns an aggregate instance of class `klass` constructed by applying events from the corresponding
+    # stream.
     def load_aggregate(klass, id)
       agg = klass.new(id)
 
@@ -22,12 +26,19 @@ module Akasha
       agg
     end
 
+    # Saves an aggregate to the repository, appending events to the corresponding stream.
     def save_aggregate(aggregate)
       changeset = aggregate.changeset
       stream(aggregate.class, changeset.aggregate_id).write_events(changeset.events)
       notify_subscribers(aggregate)
     end
 
+    # Subscribes to event streams passing either a lambda or a block.
+    # Example:
+    #
+    #   repo.subscribe do |aggregate_id, event|
+    #     ... handle the event ...
+    #   end
     def subscribe(lambda = nil, &block)
       callable = lambda || block
       @subscribers << callable
