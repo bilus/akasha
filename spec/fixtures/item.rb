@@ -1,3 +1,4 @@
+# An example aggregate.
 class Item < Akasha::Aggregate
   attr_reader :name
 
