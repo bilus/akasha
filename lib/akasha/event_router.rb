@@ -15,7 +15,11 @@ module Akasha
     def route(event_name, aggregate_id, **data)
       @routes[event_name].each do |listener_class|
         listener = listener_class.new
-        listener.public_send(:"on_#{event_name}", aggregate_id, **data)
+        begin
+          listener.public_send(:"on_#{event_name}", aggregate_id, **data)
+        rescue RuntimeError => e
+          log "Error handling event #{event_name.inspect}: #{e}"
+        end
       end
     end
 
@@ -23,6 +27,12 @@ module Akasha
     # This is interface allowing  subscription via `Akasha::Repository#subscribe`.
     def call(aggregate_id, event)
       route(event.name, aggregate_id, **event.data)
+    end
+
+    private
+
+    def log(msg)
+      puts msg
     end
   end
 end
