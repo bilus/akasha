@@ -29,7 +29,7 @@ require 'sinatra'
 
 class User < Akasha::Aggregate
   def sign_up(email:, password:, admin: false, **)
-    changeset << Akasha::Event.new(:user_signed_up, email: email, password: password, admin: admin)
+    changeset.append(:user_signed_up, email: email, password: password, admin: admin)
   end
 
   def on_user_signed_up(email:, password:, admin:, **)
