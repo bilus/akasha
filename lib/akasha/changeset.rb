@@ -11,7 +11,7 @@ module Akasha
 
     # Adds an event to the changeset.
     def append(event_name, **data)
-      @events << Akasha::Event.new(event_name, **data)
+      # @events << Akasha::Event.new(event_name, **data)
     end
 
     # Returns true if no changes recorded.
