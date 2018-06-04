@@ -2,20 +2,21 @@ module Akasha
   # Routes events to event listeners.
   class EventRouter
     def initialize
-      @routes = {}
+      @routes = Hash.new { |hash, key| hash[key] = [] }
     end
 
     # Registers a new event listener, derived from
     # `Akasha::EventListener`.
     def register_event_listener(event_name, listener_class)
-      @routes[event_name] = listener_class
+      @routes[event_name] << listener_class
     end
 
     # Routes an event.
     def route(event_name, aggregate_id, **data)
-      listener_class = @routes[event_name]
-      return if listener_class.nil?
-      listener_class.new.public_send(:"on_#{event_name}", aggregate_id, **data)
+      @routes[event_name].each do |listener_class|
+        listener = listener_class.new
+        listener.public_send(:"on_#{event_name}", aggregate_id, **data)
+      end
     end
 
     # Routes an event (an Akasha::Event instance).
