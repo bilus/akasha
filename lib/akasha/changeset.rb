@@ -13,5 +13,15 @@ module Akasha
     def <<(event)
       @events << event
     end
+
+    # Returns true if no changes recorded.
+    def empty?
+      @events.empty?
+    end
+
+    # Clears the changeset.
+    def clear!
+      @events = []
+    end
   end
 end

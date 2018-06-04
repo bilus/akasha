@@ -38,7 +38,9 @@ module Akasha
     module InstanceMethods
       # Saves the aggregate.
       def save!
+        return if changeset.empty?
         self.class.repository.save_aggregate(self)
+        changeset.clear!
       end
     end
   end
