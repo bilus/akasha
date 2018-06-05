@@ -12,6 +12,12 @@ module Akasha
       @data = data
     end
 
+    def metadata
+      {
+        created_at: @created_at
+      }
+    end
+
     def ==(other)
       self.class == other.class &&
         name == other.name &&

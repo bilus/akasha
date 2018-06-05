@@ -18,8 +18,8 @@ module Akasha
       agg = klass.new(id)
 
       start = 0
-      chunk_size = 100
-      stream(klass, id).read_events(start, chunk_size) do |events|
+      page_size = 20
+      stream(klass, id).read_events(start, page_size) do |events|
         agg.apply_events(events)
       end
 

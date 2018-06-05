@@ -27,7 +27,7 @@ describe Akasha::Storage::MemoryEventStore::Stream do
           subject.write_events(events)
         end
 
-        it 'reads a chunk of events from start' do
+        it 'reads a page of events from start' do
           expect { subject.read_events(0, 2).to eq(events) }
         end
 
@@ -36,12 +36,12 @@ describe Akasha::Storage::MemoryEventStore::Stream do
         end
 
         it 'reads events from different positions' do
-          expected_first_chunk = [events[0]]
-          expected_second_chunk = [events[1]]
-          expected_last_chunk = []
-          expect { subject.read_events(0, 1).to eq(expected_first_chunk) }
-          expect { subject.read_events(1, 1).to eq(expected_second_chunk) }
-          expect { subject.read_events(2, 1).to eq(expected_last_chunk) }
+          expected_first_page = [events[0]]
+          expected_second_page = [events[1]]
+          expected_last_page = []
+          expect { subject.read_events(0, 1).to eq(expected_first_page) }
+          expect { subject.read_events(1, 1).to eq(expected_second_page) }
+          expect { subject.read_events(2, 1).to eq(expected_last_page) }
         end
       end
     end
@@ -52,26 +52,26 @@ describe Akasha::Storage::MemoryEventStore::Stream do
       end
 
       it 'reads all events from start' do
-        expected_chunks = [
+        expected_pages = [
           [events[0]],
           [events[1]]
         ]
-        actual_chunks = []
+        actual_pages = []
         subject.read_events(0, 1) do |events|
-          actual_chunks << events
+          actual_pages << events
         end
-        expect(actual_chunks).to eq(expected_chunks)
+        expect(actual_pages).to eq(expected_pages)
       end
 
       it 'reads all events from any position' do
-        expected_chunks = [
+        expected_pages = [
           [events[1]]
         ]
-        actual_chunks = []
+        actual_pages = []
         subject.read_events(1, 1) do |events|
-          actual_chunks << events
+          actual_pages << events
         end
-        expect(actual_chunks).to eq(expected_chunks)
+        expect(actual_pages).to eq(expected_pages)
       end
     end
   end
