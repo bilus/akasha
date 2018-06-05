@@ -12,15 +12,14 @@ module Akasha
           @events += events
         end
 
-        # Reads events from the stream starting from `position` inclusive.
-        # If block given, reads all events from the position in chunks
-        # of `size`.
-        # If block not given, reads `size` events from the position.
-        def read_events(position, size, &block)
+        # Reads events from the stream starting from `start` inclusive.
+        # If block given, reads all events from the start in pages of `page_size`.
+        # If block not given, reads `page_size` events from the start.
+        def read_events(start, page_size, &block)
           if block_given?
-            @events.lazy.drop(position).each_slice(size, &block)
+            @events.lazy.drop(start).each_slice(page_size, &block)
           else
-            @events[position..position + size]
+            @events[start..start + page_size]
           end
         end
       end

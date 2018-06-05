@@ -74,8 +74,9 @@ end
 
 - [x] Command routing (default and user-defined)
 - [x] Synchronous EventHandler
-- [ ] HTTP Eventstore storage backend
+- [x] HTTP Eventstore storage backend
 - [ ] Telemetry (Dogstatsd)
+- [ ] Event#id for better idempotence (validate this claim)
 - [ ] Namespacing for events and aggregates
 - [ ] Version-based concurrency
 - [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)

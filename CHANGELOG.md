@@ -3,6 +3,7 @@
 ## Version TBD
 
 * Synchronous event listeners (see `examples/sinatra/app.rb`).
+* HTTP-based Eventstore storage.
 
 
 ## Version 0.1.0
