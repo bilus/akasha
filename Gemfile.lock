@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    akasha (0.1.0)
+    akasha (0.2.0)
       http_event_store
 
 GEM
