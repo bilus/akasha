@@ -1,6 +1,6 @@
 module Akasha
-  # Routes events to event listeners.
-  class EventRouter
+  # Base class for routing events to event listeners.
+  class EventRouterBase
     def initialize
       @routes = Hash.new { |hash, key| hash[key] = [] }
     end
@@ -21,12 +21,6 @@ module Akasha
           log "Error handling event #{event_name.inspect}: #{e}"
         end
       end
-    end
-
-    # Routes an event (an Akasha::Event instance).
-    # This is interface allowing  subscription via `Akasha::Repository#subscribe`.
-    def call(aggregate_id, event)
-      route(event.name, aggregate_id, **event.data)
     end
 
     private

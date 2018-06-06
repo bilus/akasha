@@ -1,4 +1,4 @@
-describe Akasha::EventRouter do
+describe Akasha::EventRouterBase do
   let(:router) { described_class.new }
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
 
@@ -30,7 +30,7 @@ describe Akasha::EventRouter do
       before do
         router.register_event_listener(:name_changed, Notifier)
         router.register_event_listener(:name_changed, Logger)
-        allow(router).to receive(:log).and_return(nil)  # Do not print to stdout.
+        allow(router).to receive(:log).and_return(nil) # Do not print to stdout.
       end
 
       it 'invokes all event handlers' do

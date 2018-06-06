@@ -15,6 +15,12 @@ class User < Akasha::Aggregate
   end
 end
 
+class UserListMaterializer < Akasha::EventListener
+  def on_user_signed_up(user_id, **)
+    # Update database.
+  end
+end
+
 class Notifier < Akasha::EventListener
   def on_user_signed_up(user_id, **)
     notify_about_signup(user_id)
@@ -42,9 +48,18 @@ before do
   Akasha::Aggregate.connect!(repository)
 
   # Set up event listeners.
-  @event_router = Akasha::EventRouter.new
-  @event_router.register_event_listener(:user_signed_up, Notifier)
-  repository.subscribe(@event_router)
+  event_router = Akasha::SyncEventRouter.new
+  event_router.register_event_listener(:user_signed_up, UserListMaterializer)
+  event_router.connect!(repository)
+
+  async_event_router = Akasha::AsyncEventRouter.new
+  async_event_router.register_event_listener(:user_signed_up, Notifier)
+  async_event_router.connect!(repository)
+
+  Thread.new do
+    async_event_router.run_forever
+  end
+
 
   # This is how you link commands to aggregates.
   @command_router.register_default_route(:sign_up, User)

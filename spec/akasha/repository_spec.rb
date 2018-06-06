@@ -69,4 +69,8 @@ describe Akasha::Repository do
       subject.save_aggregate(item)
     end
   end
+
+  describe '#asubscribe' do
+
+  end
 end
