@@ -7,12 +7,28 @@ describe Akasha::Storage::MemoryEventStore::Stream do
   end
 
   describe '#write_events' do
-    it 'succeeds for empty array' do
-      expect { subject.write_events([]) }.to_not raise_error
+    context 'without reduce block' do
+      it 'succeeds for empty array' do
+        expect { subject.write_events([]) }.to_not raise_error
+      end
+
+      it 'succeeds for array of events' do
+        expect { subject.write_events(events) }.to_not raise_error
+        expect(subject.read_events(0, 999)).to_not be_empty
+      end
     end
 
-    it 'succeeds for some events' do
-      expect { subject.write_events(events) }.to_not raise_error
+    context 'with reduce block' do
+      subject do
+        described_class.new do |_all_events, _new_events|
+          [] # Ignore all events
+        end
+      end
+
+      it 'stores no events' do
+        subject.write_events(events)
+        expect(subject.read_events(0, 999)).to be_empty
+      end
     end
   end
 

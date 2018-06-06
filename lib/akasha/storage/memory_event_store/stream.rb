@@ -3,13 +3,17 @@ module Akasha
     class MemoryEventStore
       # Memory-based event stream.
       class Stream
-        def initialize
+        # Creates a new event stream.
+        # Accepts an optional block, allowing for filtering new events and triggering side-effects,
+        # before new events are appended to the stream,
+        def initialize(&before_write)
+          @before_write = before_write || identity
           @events = []
         end
 
         # Appends events to the stream.
         def write_events(events)
-          @events += events
+          @events += @before_write.call(events)
         end
 
         # Reads events from the stream starting from `start` inclusive.
@@ -21,6 +25,12 @@ module Akasha
           else
             @events[start..start + page_size]
           end
+        end
+
+        private
+
+        def identity
+          ->(x) { x }
         end
       end
     end
