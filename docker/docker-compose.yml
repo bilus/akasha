@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  eventstore:
+    image: eventstore/eventstore
+    environment:
+      - EVENTSTORE_MEM_DB="true"
+      - EVENTSTORE_START_STANDARD_PROJECTIONS="true"
+    expose:
+      - "2113"
+      - "1113"
+  tests:
+    build: ..
+    links:
+      - eventstore

@@ -22,7 +22,7 @@ rvm:
   - 2.5.0
 
 # Define how to run your tests (defaults to `bundle exec rake` or `rake` depending on whether you have a `Gemfile`)
-script: "bundle exec rake"
+script: "bundle exec rake --tag ~integration"
 
 # Define tasks to be completed before and after tests run . Will allow folding of content on frontend
 #before_script:
