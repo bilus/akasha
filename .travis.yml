@@ -19,15 +19,15 @@ before_install:
   - gem update bundler
 
 # Specify which ruby versions you wish to run your tests on, each version will be used
-include:
-  # - rvm: 2.2.9
-  # - rvm: 2.3.6
-  # - rvm: 2.4.3
-  - env: INTEGRATION_TESTS=true
+matrix:
+  include:
+    # - rvm: 2.2.9
+    # - rvm: 2.3.6
+    # - rvm: 2.4.3
+    - env: INTEGRATION_TESTS=true
 
 # Define how to run your tests.
 script: |
-  set -eux
   case "$INTEGRATION_TESTS" in
     true) bin/integration-tests.sh ;;
     *) bundle exec rake --tag ~integration ;;
