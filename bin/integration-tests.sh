@@ -5,21 +5,19 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-# project name has to be "docker" likely because Travis uses an older version
-# of docker-compose ignoring -p.
-PROJECT=docker
+PROJECT=ci
 
 # kill and remove any running containers
 cleanup () {
-  docker-compose -p $PROJECT kill
-  docker-compose -p $PROJECT rm -f --all
+  docker-compose -p $PROJECT down
 }
 # catch unexpected failures, do cleanup and output an error message
 trap 'cleanup ; printf "${RED}Tests Failed For Unexpected Reasons${NC}\n"'\
   HUP INT QUIT PIPE TERM
 cd docker
+echo "Starting tests"
 # build and run the composed services
-docker-compose -p $PROJECT build && docker-compose -p $PROJECT up -d
+docker-compose -p $PROJECT up -d --build
 if [ $? -ne 0 ] ; then
   printf "${RED}Docker Compose Failed${NC}\n"
   exit -1

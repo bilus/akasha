@@ -17,13 +17,12 @@ cache: bundler
 before_install:
   - gem update --system
   - gem update bundler
-  - cd docker && docker-compose up
 
 # Specify which ruby versions you wish to run your tests on, each version will be used
 include:
-  - rvm: 2.2.9
-  - rvm: 2.3.6
-  - rvm: 2.4.3
+  # - rvm: 2.2.9
+  # - rvm: 2.3.6
+  # - rvm: 2.4.3
   - env: INTEGRATION_TESTS=true
 
 # Define how to run your tests.
