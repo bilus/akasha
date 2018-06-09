@@ -23,7 +23,11 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'http_event_store'
+  spec.add_dependency 'faraday', '~> 0.15'
+  spec.add_dependency 'typhoeus', '~> 1.3'
+  spec.add_dependency 'http_event_store', '~> 0.2'
+  spec.add_dependency 'retries', '~> 0.0'
+  spec.add_dependency 'corefines', '~>1.11'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'rake', '~> 10.0'

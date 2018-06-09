@@ -13,3 +13,5 @@ services:
     build: ..
     links:
       - eventstore
+    environment:
+      -  EVENTSTORE_URL=http://admin:changeit@eventstore:2113

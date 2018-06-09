@@ -17,7 +17,7 @@ module Akasha
               metadata: event.metadata
             }
           end
-          @client.append_to_stream(@stream_name, event_hashes)
+          @client.retry_append_to_stream(@stream_name, event_hashes)
         end
 
         # Reads events from the stream starting from `start` inclusive.
@@ -33,16 +33,8 @@ module Akasha
               position += events.size
             end
           else
-            safe_read_events(start, page_size)
+            @client.retry_read_events_forward(@stream_name, start, page_size)
           end
-        end
-
-        private
-
-        def safe_read_events(start, page_size)
-          @client.read_events_forward(@stream_name, start, page_size)
-        rescue ::HttpEventStore::StreamNotFound
-          []
         end
       end
     end
