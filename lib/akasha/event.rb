@@ -1,3 +1,4 @@
+require 'securerandom'
 require 'time'
 
 module Akasha
@@ -7,7 +8,7 @@ module Akasha
     attr_reader :id, :name, :data, :created_at
 
     def initialize(name, id = nil, created_at = Time.now.utc, **data)
-      @id = id
+      @id = id || SecureRandom.uuid.to_s # TODO: Use something better.
       @name = name
       @created_at = created_at
       @data = data
@@ -19,7 +20,7 @@ module Akasha
       }
     end
 
-    def ==(other)
+    def ==(other) # rubocop:disable Metrics/AbcSize
       self.class == other.class &&
         id == other.id &&
         name == other.name &&

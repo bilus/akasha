@@ -17,6 +17,19 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
       subject.retry_append_to_stream(stream, events)
       expect(actual_events.map(&:name)).to eq events.map(&:name).reverse
     end
+
+    it 'can save event without data' do
+      event = Akasha::Event.new(:problem_occurred)
+      subject.retry_append_to_stream(stream, [event])
+      expect(actual_events.size).to eq 1
+    end
+
+    it 'can preserves event id if set' do
+      id = SecureRandom.uuid.to_s
+      event = Akasha::Event.new(:problem_occurred, id, foo: 'bar')
+      subject.retry_append_to_stream(stream, [event])
+      expect(actual_events.first.id).to eq id
+    end
   end
 
   describe '#retry_read_events_forward' do
@@ -28,6 +41,11 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
       expect(subject.retry_read_events_forward(stream, 0, 999).map(&:id)).to_not include nil
     end
 
+    it 'retrieves saved data oldest-first' do
+      expect(subject.retry_read_events_forward(stream, 0, 999).map(&:data))
+        .to match [{ foo: 'bar' }, { baz: 'qux' }].reverse
+    end
+
     it 'returns empty array if stream does not exist' do
       expect(subject.retry_read_events_forward('not-exists', 0, 999)).to eq []
     end
@@ -37,6 +55,10 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
         .to raise_error Akasha::Storage::HttpEventStore::InvalidStreamNameError
     end
 
-    it 'retrieves saved data'
+    it 'can read events page by page' do
+      expect(subject.retry_read_events_forward(stream, 0, 1)).to_not be_empty
+      expect(subject.retry_read_events_forward(stream, 1, 1)).to_not be_empty
+      expect(subject.retry_read_events_forward(stream, 2, 1)).to be_empty
+    end
   end
 end

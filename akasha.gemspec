@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
 
-  spec.summary       = %q{CQRS library for Ruby}
-  spec.description   = %q{A simple CQRS library for Ruby.}
-  spec.homepage      = "https://github.com/bilus/akasha"
+  spec.summary       = 'CQRS library for Ruby'
+  spec.description   = 'A simple CQRS library for Ruby.'
+  spec.homepage      = 'https://github.com/bilus/akasha'
   spec.license       = 'MIT'
 
   # Specify which files should be added to the gem when it is released.
@@ -30,8 +30,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'corefines', '~>1.11'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.7'
-  spec.add_development_dependency 'timecop'
-  spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'rubocop', '~> 0.50'
+  spec.add_development_dependency 'timecop', '~> 0.9'
 end

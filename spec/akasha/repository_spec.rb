@@ -59,10 +59,7 @@ describe Akasha::Repository do
     end
 
     it 'calls subscriber for every event written to storage' do
-      event1 = Akasha::Event.new(:name_changed, old_name: nil, new_name: 'foo')
-      expect(sub).to receive(:call).once.ordered.with('item-1', event1)
-      event2 = Akasha::Event.new(:name_changed, old_name: 'foo', new_name: 'bar')
-      expect(sub).to receive(:call).once.ordered.with('item-1', event2)
+      expect(sub).to receive(:call).twice
       item = subject.load_aggregate(Item, 'item-1')
       item.name = 'foo'
       subject.save_aggregate(item)
@@ -71,6 +68,4 @@ describe Akasha::Repository do
       subject.save_aggregate(item)
     end
   end
-
-  describe '#asubscribe'
 end

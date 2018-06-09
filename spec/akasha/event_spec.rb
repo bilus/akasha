@@ -1,7 +1,7 @@
 describe Akasha::Event do
   subject { described_class.new(:post_created, id, now, foo: 'bar') }
   let(:id) { '49a122d1-6cbb-490c-857b-ebf473032bc5' }
-  let(:now) { Time.now }
+  let(:now) { Time.now.utc }
 
   describe '#==' do
     let(:identical) { described_class.new(:post_created, id, now, foo: 'bar') }

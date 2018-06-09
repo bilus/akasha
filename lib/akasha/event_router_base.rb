@@ -26,7 +26,7 @@ module Akasha
     private
 
     def log(msg)
-      puts msg
+      puts msg # rubocop:disable Rails/Output
     end
   end
 end

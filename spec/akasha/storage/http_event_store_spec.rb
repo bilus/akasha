@@ -1,4 +1,2 @@
-describe "Akasha::Storage::HttpEventStore", integration: true do
-
-
+describe 'Akasha::Storage::HttpEventStore', integration: true do
 end

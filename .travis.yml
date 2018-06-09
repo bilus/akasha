@@ -26,11 +26,15 @@ matrix:
     - env: INTEGRATION_TESTS=true
 
 # Define how to run your tests.
-script: |
-  case "$INTEGRATION_TESTS" in
-    true) bin/integration-tests.sh ;;
-    *) bundle exec rspec --tag ~integration ;;
-  esac
+script:
+  - |
+    # Run either integration tests or specs.
+    case "$INTEGRATION_TESTS" in
+      true) bin/integration-tests.sh ;;
+      *) bundle exec rspec --tag ~integration ;;
+    esac
+  # Check if conventions are being followed.
+  - bundle exec rake rubocop
 
 # Disable email notifications
 notifications:

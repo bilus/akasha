@@ -1,7 +1,11 @@
 require 'corefines/hash'
 require 'http_event_store'
+require 'json'
 require 'retries'
+require 'time'
 require 'typhoeus/adapters/faraday'
+
+require_relative 'response_handler'
 
 module Akasha
   module Storage
@@ -20,22 +24,33 @@ module Akasha
         def initialize(host: 'localhost', port: 2113, username: nil, password: nil)
           @username = username
           @password = password
+          @fconn = Faraday.new(url: "http://#{host}:#{port}") do |conn|
+            conn.response :json, content_type: 'application/json'
+            conn.use ResponseHandler
+            conn.adapter :typhoeus
+          end
+
           @conn = ::HttpEventStore::Connection.new do |config|
             config.endpoint = host
             config.port = port
-            # config.http_adapter = :typhoeus
           end
         end
 
-        def retry_append_to_stream(stream_name, events, expected_version = nil, max_retries: 0)
+        def retry_append_to_stream(stream_name, events, _expected_version = nil, max_retries: 0)
           retrying(max_retries) do
-            @conn.append_to_stream(stream_name, to_event_data(events), expected_version)
+            @fconn.post("/streams/#{stream_name}") do |req|
+              req.headers = {
+                'Content-Type' => 'application/vnd.eventstore.events+json',
+                # 'ES-ExpectedVersion' => expected_version
+              }
+              req.body = to_event_data(events).to_json
+            end
           end
         end
 
-        def retry_read_events_forward(stream_name, start, count, pool = 0, max_retries: 0)
+        def retry_read_events_forward(stream_name, start, count, poll = 0, max_retries: 0)
           retrying(max_retries) do
-            to_events(safe_read_events(stream_name, start, count, pool))
+            safe_read_events(stream_name, start, count, poll)
           end
         end
 
@@ -63,28 +78,41 @@ module Akasha
           end
         end
 
-        def safe_read_events(stream_name, start, count, pool)
-          @conn.read_events_forward(stream_name, start, count, pool)
-        rescue ::HttpEventStore::StreamNotFound
-          []
+        def safe_read_events(stream_name, start, count, poll)
+          resp = @fconn.get("/streams/#{stream_name}/#{start}/forward/#{count}") do |req|
+            req.headers = {
+              'Accept' => 'application/json'
+            }
+            req.headers['ES-LongPoll'] = poll if poll&.positive?
+            req.params['embed'] = 'body'
+          end
+          event_data = resp.body['entries']
+          to_events(event_data)
+        rescue HttpClientError => e
+          return [] if e.status_code == 404
+          raise
         rescue URI::InvalidURIError
           raise InvalidStreamNameError, "Invalid stream name: #{stream_name}"
         end
 
-
         def to_event_data(events)
           events.map do |event|
-            {
-              event_type: event.name,
+            base = {
+              eventType: event.name,
               data: event.data,
               metadata: event.metadata
             }
+            base[:eventId] = event.id unless event.id.nil?
+            base
           end
         end
 
         def to_events(es_events)
           es_events.map do |ev|
-            Akasha::Event.new(ev.type.to_sym, ev.event_id, ev.created_time, **ev.data.symbolize_keys)
+            # TODO: Metadata.
+            raw_data = ev['data']
+            data = JSON.parse(raw_data).symbolize_keys if raw_data
+            Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], Time.iso8601(ev['updated']), **data)
           end
         end
       end
