@@ -75,7 +75,7 @@ end
 - [x] Command routing (default and user-defined)
 - [x] Synchronous EventHandler
 - [x] HTTP Eventstore storage backend
-- [ ] Namespacing for events and aggregates
+- [ ] Namespacing for events and aggregates and the projection
 - [ ] Event#id for better idempotence (validate this claim)
 - [ ] Version-based concurrency
 - [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
