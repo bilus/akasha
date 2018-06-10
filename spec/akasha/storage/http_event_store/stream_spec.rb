@@ -1,4 +1,4 @@
-describe Akasha::Storage::HttpEventStore::Stream do
+describe Akasha::Storage::HttpEventStore::Stream, integration: true do
   subject { described_class.new(http_event_store_client, stream) }
   let(:stream) { SecureRandom.uuid.to_s }
 

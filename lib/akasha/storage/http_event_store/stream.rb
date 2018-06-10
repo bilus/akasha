@@ -17,17 +17,19 @@ module Akasha
         # Reads events from the stream starting from `start` inclusive.
         # If block given, reads all events from the position in pages of `page_size`.
         # If block not given, reads `size` events from the position.
-        def read_events(start, page_size)
+        # You can also turn on long-polling using `poll` and setting it to the number
+        # of seconds to wait for.
+        def read_events(start, page_size, poll = 0)
           if block_given?
             position = start
             loop do
-              events = read_events(position, page_size)
+              events = read_events(position, page_size, poll)
               return if events.empty?
               yield(events)
               position += events.size
             end
           else
-            @client.retry_read_events_forward(@stream_name, start, page_size)
+            @client.retry_read_events_forward(@stream_name, start, page_size, poll)
           end
         end
       end

@@ -48,9 +48,11 @@ module Akasha
       # a projection.
       #
       # Arguments:
-      #   `new_stream_name` - name of the new stream
+      #   `into` - name of the new stream
       #   `only` - array of event names
-      def merge_all_by_event(into:, only:); end
+      def merge_all_by_event(into:, only:)
+        @client.merge_all_by_event(into, only)
+      end
     end
   end
 end

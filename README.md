@@ -117,7 +117,7 @@ This will use docker-compose to spin up containers containing the dependencies a
 Because it's pretty slow, you may want to spin up a docker container containing event store:
 
 ```
-docker run --name akasha-eventstore -it -p 2113:2113 -p 1113:1113 -d eventstore/eventstore
+docker run -e EVENTSTORE_START_STANDARD_PROJECTIONS=true --name akasha-eventstore -it -p 2113:2113 -p 1113:1113 -d eventstore/eventstore
 ```
 
 and use RSpec run just integration specs like so:

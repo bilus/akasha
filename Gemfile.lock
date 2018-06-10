@@ -5,6 +5,7 @@ PATH
       corefines (~> 1.11)
       faraday (~> 0.15)
       faraday_middleware
+      rack (~> 2.0)
       retries (~> 0.0)
       typhoeus (~> 1.3)
 
@@ -35,6 +36,7 @@ GEM
     pry-byebug (3.6.0)
       byebug (~> 10.0)
       pry (~> 0.10)
+    rack (2.0.5)
     rainbow (2.2.2)
       rake
     rake (10.5.0)

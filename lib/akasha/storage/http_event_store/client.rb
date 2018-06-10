@@ -1,13 +1,16 @@
+require 'base64'
 require 'corefines/hash'
 require 'json'
 require 'faraday'
 require 'faraday_middleware'
+require 'rack/utils'
 require 'retries'
 require 'time'
 require 'typhoeus/adapters/faraday'
 
-require_relative 'response_handler'
 require_relative 'event_serializer'
+require_relative 'response_handler'
+require_relative 'projection_manager'
 
 module Akasha
   module Storage
@@ -16,12 +19,10 @@ module Akasha
       class Client
         using Corefines::Hash
 
-        # Errors to catch and retry request
-        RECOVERABLE_ERRORS = [Faraday::TimeoutError, Faraday::ConnectionFailed].freeze
-        # A lower limit for the interval.
-        MIN_INTERVAL = 0
-        # An upper limit for the interval.
-        MAX_INTERVAL = 10.0
+        # A lower limit for a retry interval.
+        MIN_RETRY_INTERVAL = 0
+        # An upper limit for a retry interval.
+        MAX_RETRY_INTERVAL = 10.0
 
         # Creates a new client for the host and port with optional username and password
         # for authenticating certain requests.
@@ -32,25 +33,38 @@ module Akasha
           @serializer = EventSerializer.new
         end
 
-        # Append events to stream, idempotently retrying up to `max_retries`
+        # Append events to stream, idempotently retrying_on_network_failures up to `max_retries`
         def retry_append_to_stream(stream_name, events, expected_version = nil, max_retries: 0)
-          retrying(max_retries) do
+          retrying_on_network_failures(max_retries) do
             append_to_stream(stream_name, events, expected_version)
           end
         end
 
-        # Read events from stream, retrying up to `max_retries` in case of network failures.
+        # Read events from stream, retrying_on_network_failures up to `max_retries` in case of network failures.
         # Reads `count` events starting from `start` inclusive.
         # Can long-poll for events if `poll` is specified.`
         def retry_read_events_forward(stream_name, start, count, poll = 0, max_retries: 0)
-          retrying(max_retries) do
+          retrying_on_network_failures(max_retries) do
             safe_read_events(stream_name, start, count, poll)
           end
         end
 
-        # Issue a generic request against the API.
+        # Merges all streams into one, filtering the resulting stream
+        # so it only contains events with the specified names, using
+        # a projection.
+        #
+        # Arguments:
+        #   `name` - name of the projection stream
+        #   `event_names` - array of event names
+        def merge_all_by_event(name, event_names, max_retries: 0)
+          retrying_on_network_failures(max_retries) do
+            ProjectionManager.new(self).merge_all_by_event(name, event_names)
+          end
+        end
+
+        # Issues a generic request against the API.
         def request(method, url, body, headers = {})
-          @conn.client.make_request(method, url, body, auth_headers.merge(headers))
+          @conn.public_send(method, url, body, auth_headers.merge(headers))
         end
 
         private
@@ -76,9 +90,11 @@ module Akasha
           end
         end
 
-        def retrying(max_retries)
-          with_retries(base_sleep_seconds: MIN_INTERVAL, max_sleep_seconds: MAX_INTERVAL,
-                       max_tries: 1 + max_retries, rescue: RECOVERABLE_ERRORS) do
+        def retrying_on_network_failures(max_retries)
+          with_retries(base_sleep_seconds: MIN_RETRY_INTERVAL,
+                       max_sleep_seconds: MAX_RETRY_INTERVAL,
+                       max_tries: 1 + max_retries,
+                       rescue: [Faraday::TimeoutError, Faraday::ConnectionFailed]) do
             yield
           end
         end
