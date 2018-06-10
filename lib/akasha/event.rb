@@ -1,28 +1,25 @@
+require 'ostruct'
 require 'securerandom'
 require 'time'
 
 module Akasha
-  # Event contains all information pertaining to a single
-  # event recorded by the system.
+  # Describes a single event recorded by the system.
   class Event
-    attr_reader :id, :name, :data, :created_at
-    attr_accessor :saved_at
+    attr_reader :id, :name, :data, :metadata
 
-    def initialize(name, id = nil, created_at = Time.now.utc, saved_at = nil, **data)
+    def initialize(name, id = nil, metadata = OpenStruct.new, **data)
       @id = id || SecureRandom.uuid.to_s # TODO: Use something better.
       @name = name
-      @created_at = created_at
-      @saved_at = saved_at
+      @metadata = metadata || OpenStruct.new(created_at: Time.now.utc)
       @data = data
     end
 
-    def ==(other) # rubocop:disable Metrics/AbcSize
+    def ==(other)
       self.class == other.class &&
         id == other.id &&
         name == other.name &&
         data == other.data &&
-        created_at&.iso8601 == other.created_at&.iso8601 &&
-        saved_at&.iso8601 == other.saved_at&.iso8601
+        metadata == other.metadata
     end
   end
 end

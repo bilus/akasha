@@ -13,9 +13,7 @@ module Akasha
             base = {
               'eventType' => event.name,
               'data' => event.data,
-              'metaData' => {
-                created_at: event.created_at.utc.iso8601
-              }
+              'metaData' => event.metadata.to_hash
             }
             base['eventId'] = event.id unless event.id.nil?
             base
@@ -25,10 +23,9 @@ module Akasha
         def deserialize(es_events)
           es_events.map do |ev|
             metadata = ev['metaData']&.symbolize_keys || {}
-            created_at = Time.iso8601(metadata[:created_at]) if metadata[:created_at]
-            saved_at = Time.iso8601(ev[:updated]) if ev[:updated]
             data = ev['data']&.symbolize_keys || {}
-            Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], created_at, saved_at, **data)
+            event = Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], OpenStruct.new(metadata), **data)
+            event
           end
         end
       end
