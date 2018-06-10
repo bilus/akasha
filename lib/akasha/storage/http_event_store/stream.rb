@@ -10,14 +10,8 @@ module Akasha
 
         # Appends events to the stream.
         def write_events(events)
-          event_hashes = events.map do |event|
-            {
-              event_type: event.name,
-              data: event.data,
-              metadata: event.metadata
-            }
-          end
-          @client.retry_append_to_stream(@stream_name, event_hashes)
+          return if events.empty?
+          @client.retry_append_to_stream(@stream_name, events)
         end
 
         # Reads events from the stream starting from `start` inclusive.

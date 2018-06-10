@@ -7,6 +7,7 @@ require 'time'
 require 'typhoeus/adapters/faraday'
 
 require_relative 'response_handler'
+require_relative 'event_serializer'
 
 module Akasha
   module Storage
@@ -22,10 +23,40 @@ module Akasha
         # An upper limit for the interval.
         MAX_INTERVAL = 10.0
 
+        # Creates a new client for the host and port with optional username and password
+        # for authenticating certain requests.
         def initialize(host: 'localhost', port: 2113, username: nil, password: nil)
           @username = username
           @password = password
-          @conn = Faraday.new do |conn|
+          @conn = connection(host, port)
+          @serializer = EventSerializer.new
+        end
+
+        # Append events to stream, idempotently retrying up to `max_retries`
+        def retry_append_to_stream(stream_name, events, expected_version = nil, max_retries: 0)
+          retrying(max_retries) do
+            append_to_stream(stream_name, events, expected_version)
+          end
+        end
+
+        # Read events from stream, retrying up to `max_retries` in case of network failures.
+        # Reads `count` events starting from `start` inclusive.
+        # Can long-poll for events if `poll` is specified.`
+        def retry_read_events_forward(stream_name, start, count, poll = 0, max_retries: 0)
+          retrying(max_retries) do
+            safe_read_events(stream_name, start, count, poll)
+          end
+        end
+
+        # Issue a generic request against the API.
+        def request(method, url, body, headers = {})
+          @conn.client.make_request(method, url, body, auth_headers.merge(headers))
+        end
+
+        private
+
+        def connection(host, port)
+          Faraday.new do |conn|
             conn.host = host
             conn.port = port
             conn.response :json, content_type: 'application/json'
@@ -33,30 +64,6 @@ module Akasha
             conn.adapter :typhoeus
           end
         end
-
-        def retry_append_to_stream(stream_name, events, _expected_version = nil, max_retries: 0)
-          retrying(max_retries) do
-            @conn.post("/streams/#{stream_name}") do |req|
-              req.headers = {
-                'Content-Type' => 'application/vnd.eventstore.events+json',
-                # 'ES-ExpectedVersion' => expected_version
-              }
-              req.body = to_event_data(events).to_json
-            end
-          end
-        end
-
-        def retry_read_events_forward(stream_name, start, count, poll = 0, max_retries: 0)
-          retrying(max_retries) do
-            safe_read_events(stream_name, start, count, poll)
-          end
-        end
-
-        def request(method, url, body, headers = {})
-          @conn.client.make_request(method, url, body, auth_headers.merge(headers))
-        end
-
-        private
 
         def auth_headers
           if @username && @password
@@ -73,6 +80,16 @@ module Akasha
           with_retries(base_sleep_seconds: MIN_INTERVAL, max_sleep_seconds: MAX_INTERVAL,
                        max_tries: 1 + max_retries, rescue: RECOVERABLE_ERRORS) do
             yield
+          end
+        end
+
+        def append_to_stream(stream_name, events, _expected_version = nil)
+          @conn.post("/streams/#{stream_name}") do |req|
+            req.headers = {
+              'Content-Type' => 'application/vnd.eventstore.events+json',
+              # 'ES-ExpectedVersion' => expected_version
+            }
+            req.body = to_event_data(events).to_json
           end
         end
 
@@ -94,24 +111,16 @@ module Akasha
         end
 
         def to_event_data(events)
-          events.map do |event|
-            base = {
-              eventType: event.name,
-              data: event.data,
-              metadata: event.metadata
-            }
-            base[:eventId] = event.id unless event.id.nil?
-            base
-          end
+          @serializer.serialize(events)
         end
 
         def to_events(es_events)
-          es_events.map do |ev|
-            # TODO: Metadata.
-            raw_data = ev['data']
-            data = JSON.parse(raw_data).symbolize_keys if raw_data
-            Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], Time.iso8601(ev['updated']), **data)
+          es_events = es_events.map do |ev|
+            ev['data'] &&= JSON.parse(ev['data'])
+            ev['metaData'] &&= JSON.parse(ev['metaData'])
+            ev
           end
+          @serializer.deserialize(es_events)
         end
       end
     end

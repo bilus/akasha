@@ -81,8 +81,10 @@ end
 - [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
   - [x] Uniform intetrface for Client -- use Event.
   - [x] Rewrite Client
-  - [ ] Refactor Client code
-  - [ ] Take care of created_at/updated_at (saved_at?)
+  - [x] Refactor Client code
+  - [x] Take care of created_at/updated_at (saved_at?)
+  - [ ] Tests for HttpEventStore
+  - [ ] Projections
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend
 
