@@ -79,8 +79,9 @@ end
 - [ ] Event#id for better idempotence (validate this claim)
 - [ ] Version-based concurrency
 - [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
-  - [ ] Uniform intetrface for Client -- use Event.
-  - [ ] Rewrite Client
+  - [x] Uniform intetrface for Client -- use Event.
+  - [x] Rewrite Client
+  - [ ] Refactor Client code
   - [ ] Take care of created_at/updated_at (saved_at?)
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend

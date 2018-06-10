@@ -1,6 +1,7 @@
 require 'corefines/hash'
-require 'http_event_store'
 require 'json'
+require 'faraday'
+require 'faraday_middleware'
 require 'retries'
 require 'time'
 require 'typhoeus/adapters/faraday'
@@ -24,21 +25,18 @@ module Akasha
         def initialize(host: 'localhost', port: 2113, username: nil, password: nil)
           @username = username
           @password = password
-          @fconn = Faraday.new(url: "http://#{host}:#{port}") do |conn|
+          @conn = Faraday.new do |conn|
+            conn.host = host
+            conn.port = port
             conn.response :json, content_type: 'application/json'
             conn.use ResponseHandler
             conn.adapter :typhoeus
-          end
-
-          @conn = ::HttpEventStore::Connection.new do |config|
-            config.endpoint = host
-            config.port = port
           end
         end
 
         def retry_append_to_stream(stream_name, events, _expected_version = nil, max_retries: 0)
           retrying(max_retries) do
-            @fconn.post("/streams/#{stream_name}") do |req|
+            @conn.post("/streams/#{stream_name}") do |req|
               req.headers = {
                 'Content-Type' => 'application/vnd.eventstore.events+json',
                 # 'ES-ExpectedVersion' => expected_version
@@ -79,7 +77,7 @@ module Akasha
         end
 
         def safe_read_events(stream_name, start, count, poll)
-          resp = @fconn.get("/streams/#{stream_name}/#{start}/forward/#{count}") do |req|
+          resp = @conn.get("/streams/#{stream_name}/#{start}/forward/#{count}") do |req|
             req.headers = {
               'Accept' => 'application/json'
             }
