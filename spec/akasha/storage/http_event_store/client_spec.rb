@@ -61,4 +61,36 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
       expect(subject.retry_read_events_forward(stream, 2, 1)).to be_empty
     end
   end
+
+  shared_context 'existing stream' do
+    let(:existing_stream) { "stream-#{SecureRandom.uuid}" }
+
+    before do
+      subject.retry_append_to_stream(existing_stream, events)
+    end
+  end
+
+  describe '#retry_read_metadata' do
+    include_context 'existing stream'
+
+    it 'is a hash' do
+      expect(subject.retry_read_metadata(existing_stream)).to be_a Hash
+    end
+  end
+
+  describe '#retry_write_metadata' do
+    include_context 'existing stream'
+
+    let(:metadata) do
+      {
+        :$maxCount => 1,
+        foo: 'bar'
+      }
+    end
+
+    it 'sets stream metadata' do
+      subject.retry_write_metadata(existing_stream, metadata)
+      expect(subject.retry_read_metadata(existing_stream)).to include(metadata)
+    end
+  end
 end

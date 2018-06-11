@@ -62,9 +62,23 @@ module Akasha
           end
         end
 
+        # Reads stream metadata.
+        def retry_read_metadata(stream_name)
+          metadata = request(:get, "/streams/#{stream_name}/metadata", nil, 'Accept' => 'application/json')
+          metadata.symbolize_keys
+        end
+
+        # Updates stream metadata.
+        def retry_write_metadata(stream_name, metadata)
+          event = Akasha::Event.new(:stream_metadata_changed, SecureRandom.uuid, metadata)
+          retry_append_to_stream("#{stream_name}/metadata", [event])
+        end
+
         # Issues a generic request against the API.
-        def request(method, url, body, headers = {})
-          @conn.public_send(method, url, body, auth_headers.merge(headers))
+        def request(method, path, body = nil, headers = {})
+          body = @conn.public_send(method, path, body, auth_headers.merge(headers)).body
+          return {} if body.empty?
+          body
         end
 
         private

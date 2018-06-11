@@ -79,4 +79,30 @@ describe Akasha::Storage::HttpEventStore::Stream, integration: true do
       end
     end
   end
+
+  describe '#metadata' do
+    it 'is a hash' do
+      expect(subject.metadata).to be_a Hash
+    end
+  end
+
+  describe '#metadata=' do
+    let(:metadata) do
+      {
+        :$maxCount => 1,
+        foo: 'bar'
+      }
+    end
+
+    it 'sets stream metadata' do
+      subject.metadata = metadata
+      expect(subject.metadata).to include(metadata)
+    end
+
+    it 'can limit the number of events' do
+      subject.metadata = metadata
+      subject.write_events(events)
+      expect(subject.read_events(0, 999).size).to eq 1
+    end
+  end
 end

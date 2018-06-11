@@ -32,6 +32,16 @@ module Akasha
             @client.retry_read_events_forward(@stream_name, start, page_size, poll)
           end
         end
+
+        # Reads stream metadata.
+        def metadata
+          @client.read_metadata(@stream_name)
+        end
+
+        # Updates stream metadata.
+        def metadata=(metadata)
+          @client.write_metadata(@stream_name, metadata)
+        end
       end
     end
   end
