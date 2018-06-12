@@ -2,7 +2,7 @@ require 'securerandom'
 
 describe Akasha::Storage::HttpEventStore::Client, integration: true do
   subject { http_event_store_client }
-  let(:stream) { SecureRandom.uuid.to_s }
+  let(:stream) { gensym(:stream) }
   let(:events) do
     [
       Akasha::Event.new(:something_happened, foo: 'bar'),
@@ -63,7 +63,7 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
   end
 
   shared_context 'existing stream' do
-    let(:existing_stream) { "stream-#{SecureRandom.uuid}" }
+    let(:existing_stream) { gensym(:stream) }
 
     before do
       subject.retry_append_to_stream(existing_stream, events)

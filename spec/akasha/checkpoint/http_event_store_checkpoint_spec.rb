@@ -1,6 +1,6 @@
 describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
   let(:checkpoint) { described_class.new(repository.streams[stream]) }
-  let(:stream) { "stream-#{SecureRandom.uuid}" }
+  let(:stream) { gensym(:stream) }
   let(:repository) { Akasha::Storage::HttpEventStore.new(http_es_config) }
 
   let(:events) do

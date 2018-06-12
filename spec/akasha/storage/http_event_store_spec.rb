@@ -1,9 +1,3 @@
-def unique(name)
-  u = "#{name}-#{SecureRandom.uuid}"
-  return u.to_sym if name.is_a?(Symbol)
-  u
-end
-
 describe Akasha::Storage::HttpEventStore, integration: true do
   subject { described_class.new(http_es_config) }
 
@@ -14,11 +8,11 @@ describe Akasha::Storage::HttpEventStore, integration: true do
   end
 
   describe '#merge_all_by_event' do
-    let(:projection_name) { unique('projection') }
-    let(:stream_name) { unique('stream') }
-    let(:world_created) { Akasha::Event.new(unique(:world_created)) }
-    let(:ruby_invented) { Akasha::Event.new(unique(:ruby_invented)) }
-    let(:world_ended) { Akasha::Event.new(unique(:world_ended)) }
+    let(:projection_name) { gensym(:projection) }
+    let(:stream_name) { gensym(:stream) }
+    let(:world_created) { Akasha::Event.new(gensym(:world_created)) }
+    let(:ruby_invented) { Akasha::Event.new(gensym(:ruby_invented)) }
+    let(:world_ended) { Akasha::Event.new(gensym(:world_ended)) }
     let(:events) do
       [
         world_created,
