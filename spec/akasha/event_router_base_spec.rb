@@ -15,13 +15,26 @@ describe Akasha::EventRouterBase do
       end
     end
 
-    context 'with a valid listener' do
+    context 'with a valid listener class' do
       before do
         router.register_event_listener(:name_changed, Notifier)
       end
 
       it 'invokes the event handler' do
         expect_any_instance_of(Notifier).to receive(:on_name_changed).with('item-1', new_name: 'new name')
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'with a valid listener instance' do
+      let(:notifier) { Notifier.new }
+
+      before do
+        router.register_event_listener(:name_changed, notifier)
+      end
+
+      it 'invokes the event handler' do
+        expect(notifier).to receive(:on_name_changed).with('item-1', new_name: 'new name')
         expect { subject }.to_not raise_error
       end
     end
