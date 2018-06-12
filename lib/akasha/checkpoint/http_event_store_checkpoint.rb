@@ -9,14 +9,13 @@ module Akasha::Checkpoint
     def initialize(stream, interval: 1)
       @stream = stream
       @interval = interval
-      @next_position = read_position || 0
       return if @stream.respond_to?(:metadata) && @stream.respond_to?(:metadata=)
       raise UnsupportedStorageError, "Storage does not support checkpoints: #{stream.class}"
     end
 
     # Returns the most recently stored next position.
     def latest
-      @next_position
+      @next_position ||= (read_position || 0)
     end
 
     # Returns the next position, conditionally storing it (based on the configurable interval).
