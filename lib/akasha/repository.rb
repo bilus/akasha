@@ -3,6 +3,8 @@ module Akasha
   # Not meant to be used directly (see aggregate/syntax_helpers.rb)
   # See specs for usage.
   class Repository
+    attr_reader :store
+
     STREAM_NAME_SEP = '-'.freeze
 
     # Creates a new repository using the underlying `store` (e.g. `MemoryEventStore`).
@@ -42,6 +44,17 @@ module Akasha
     def subscribe(lambda = nil, &block)
       callable = lambda || block
       @subscribers << callable
+    end
+
+    # Merges all streams into one, filtering the resulting stream
+    # so it only contains events with the specified names, using
+    # a projection.
+    #
+    # Arguments:
+    #   `into` - name of the new stream
+    #   `only` - array of event names
+    def merge_all_by_event(into:, only:)
+      @store.merge_all_by_event(into: into, only: only)
     end
 
     private
