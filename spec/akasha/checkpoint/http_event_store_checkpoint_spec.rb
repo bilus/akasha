@@ -45,15 +45,48 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
     end
   end
 
-  describe '#ack' do
+  shared_examples 'saving checkpoints' do
     subject { checkpoint.latest }
     let(:other_instance) { described_class.new(repository[stream], interval: interval) }
     let(:interval) { 1 }
 
-    context 'for an empty stream' do
-      it 'raises an error' do
-        expect { checkpoint.ack(0) }.to raise_error Akasha::Checkpoint::HttpEventStoreCheckpoint::StreamNotFoundError
+    context 'with checkpoints after each event' do
+      let(:interval) { 1 }
+
+      (0..2).each do |position|
+        it "saves position #{position}" do
+          other_instance.ack(position)
+          expect(subject).to eq(position + 1)
+        end
       end
+    end
+
+    context 'with checkpoint after every 3rd event' do
+      let(:interval) { 3 }
+
+      it 'does not save position 0' do
+        other_instance.ack(0)
+        expect(other_instance.latest).to eq 1
+        expect(subject).to eq(0)
+      end
+
+      it 'does not save position 1' do
+        other_instance.ack(1)
+        expect(other_instance.latest).to eq 2
+        expect(subject).to eq(0)
+      end
+
+      it 'saves position 2' do
+        other_instance.ack(2)
+        expect(other_instance.latest).to eq 3
+        expect(subject).to eq(3)
+      end
+    end
+  end
+
+  describe '#ack' do
+    context 'for an empty stream' do
+      include_examples 'saving checkpoints'
     end
 
     context 'for a non-empty stream' do
@@ -61,38 +94,7 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
         repository.streams[stream].write_events(events)
       end
 
-      context 'with checkpoints after each event' do
-        let(:interval) { 1 }
-
-        (0..2).each do |position|
-          it "saves position #{position}" do
-            other_instance.ack(position)
-            expect(subject).to eq(position + 1)
-          end
-        end
-      end
-
-      context 'with checkpoint after every 3rd event' do
-        let(:interval) { 3 }
-
-        it 'does not save position 0' do
-          other_instance.ack(0)
-          expect(other_instance.latest).to eq 1
-          expect(subject).to eq(0)
-        end
-
-        it 'does not save position 1' do
-          other_instance.ack(1)
-          expect(other_instance.latest).to eq 2
-          expect(subject).to eq(0)
-        end
-
-        it 'saves position 2' do
-          other_instance.ack(2)
-          expect(other_instance.latest).to eq 3
-          expect(subject).to eq(3)
-        end
-      end
+      include_examples 'saving checkpoints'
     end
   end
 end

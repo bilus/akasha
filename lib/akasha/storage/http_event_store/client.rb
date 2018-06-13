@@ -63,9 +63,10 @@ module Akasha
         end
 
         # Reads stream metadata.
-        def retry_read_metadata(stream_name)
-          metadata = request(:get, "/streams/#{stream_name}/metadata", nil, 'Accept' => 'application/json')
-          metadata.symbolize_keys
+        def retry_read_metadata(stream_name, max_retries: 0)
+          retrying_on_network_failures(max_retries) do
+            safe_read_metadata(stream_name)
+          end
         end
 
         # Updates stream metadata.
@@ -135,6 +136,16 @@ module Akasha
           to_events(event_data)
         rescue HttpClientError => e
           return [] if e.status_code == 404
+          raise
+        rescue URI::InvalidURIError
+          raise InvalidStreamNameError, "Invalid stream name: #{stream_name}"
+        end
+
+        def safe_read_metadata(stream_name)
+          metadata = request(:get, "/streams/#{stream_name}/metadata", nil, 'Accept' => 'application/json')
+          metadata.symbolize_keys
+        rescue HttpClientError => e
+          return {} if e.status_code == 404
           raise
         rescue URI::InvalidURIError
           raise InvalidStreamNameError, "Invalid stream name: #{stream_name}"
