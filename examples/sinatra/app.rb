@@ -57,11 +57,7 @@ before do
 
   async_event_router = Akasha::AsyncEventRouter.new
   async_event_router.register_event_listener(:user_signed_up, Notifier)
-  async_event_router.connect!(repository)
-
-  Thread.new do
-    async_event_router.run_forever
-  end
+  async_event_router.connect!(repository) # Returns Thread instance.
 
   # This is how you link commands to aggregates.
   @command_router.register_default_route(:sign_up, User)
