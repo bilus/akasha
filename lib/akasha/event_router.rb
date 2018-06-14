@@ -4,7 +4,7 @@ module Akasha
   # Routes events synchronously, providing consistency.
   # Useful for routing to materializers, providing read-your-writes
   # guarantee.
-  class SyncEventRouter < EventRouterBase
+  class EventRouter < EventRouterBase
     # Connects to the repository.
     def connect!(repository)
       repository.subscribe do |aggregate_id, event|

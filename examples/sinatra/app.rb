@@ -51,7 +51,7 @@ before do
   Akasha::Aggregate.connect!(repository)
 
   # Set up event listeners.
-  event_router = Akasha::SyncEventRouter.new
+  event_router = Akasha::EventRouter.new
   event_router.register_event_listener(:user_signed_up, UserListMaterializer)
   event_router.connect!(repository)
 

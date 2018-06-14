@@ -2,7 +2,7 @@ require_relative 'event_router_base'
 
 module Akasha
   # Event router working that can run in the background, providing eventual
-  # consistency. Can use the same EventListeners as SyncEventRouterbe sp.
+  # consistency. Can use the same EventListeners as the synchronous EventRouter.
   class AsyncEventRouter < EventRouterBase
     DEFAULT_POLL_SECONDS = 10
     DEFAULT_PAGE_SIZE = 20

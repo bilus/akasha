@@ -1,4 +1,4 @@
-describe Akasha::SyncEventRouter do
+describe Akasha::EventRouter do
   subject { described_class.new }
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
   let(:item) { Item.new('item-1') }
