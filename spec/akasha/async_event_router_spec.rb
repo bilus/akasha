@@ -1,11 +1,9 @@
 
 # TODO: Simplify initialization!
 describe Akasha::AsyncEventRouter, integration: true do
-  subject { described_class.new(projection_stream.name, checkpoint_strategy) }
   let(:repository) { Akasha::Repository.new(store) }
   let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }
-  let(:checkpoint_strategy) { Akasha::Checkpoint::HttpEventStoreCheckpoint.new(projection_stream) }
-  let(:projection_stream) { store.streams[gensym(:projection)] }
+  let(:projection_name) { gensym(:projection) }
   let(:stream_name) { gensym(:stream) }
   let(:name_changed_event) { gensym(:name_changed) }
   let(:something_happened_event) { gensym(:something_happened) }
@@ -24,7 +22,7 @@ describe Akasha::AsyncEventRouter, integration: true do
     Akasha::Aggregate.connect!(repository)
     subject.register_event_listener(name_changed_event, listener)
     subject.register_event_listener(something_happened_event, listener)
-    @thread = subject.connect!(repository)
+    @thread = subject.connect!(repository, projection_name: projection_name)
   end
 
   after do

@@ -47,7 +47,7 @@ before do
   @command_router = Akasha::CommandRouter.new
 
   # Aggregates will load from and save to in-memory storage.
-  repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
+  repository = Akasha::Repository.new(Akasha::Storage::HttpEventStore.new(username: 'admin', password: 'changeit'))
   Akasha::Aggregate.connect!(repository)
 
   # Set up event listeners.

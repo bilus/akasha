@@ -1,5 +1,5 @@
 PATH
-  remote: .
+  remote: ../..
   specs:
     akasha (0.2.0)
       corefines (~> 1.11)
