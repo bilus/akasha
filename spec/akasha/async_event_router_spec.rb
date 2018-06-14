@@ -36,7 +36,12 @@ describe Akasha::AsyncEventRouter, integration: true do
 
     it 'routes events to listeners' do
       store.streams[stream_name].write_events(events)
-      wait(2).for { listener.calls.size }.to eq 3
+      wait(10).for { listener.calls.size }.to eq 3
+    end
+
+    it 'preserves ordering' do
+      store.streams[stream_name].write_events(events)
+      wait(10).for { listener.calls }.to eq [:"on_#{name_changed_event}", :"on_#{something_happened_event}", :"on_#{name_changed_event}"]
     end
   end
 
@@ -45,7 +50,7 @@ describe Akasha::AsyncEventRouter, integration: true do
 
     it 'handles the remaining two events' do
       store.streams[stream_name].write_events(events)
-      wait(2).for { listener.calls.size }.to eq 2
+      wait(10).for { listener.calls.size }.to eq 2
     end
   end
 end

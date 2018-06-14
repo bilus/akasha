@@ -5,6 +5,7 @@ module Akasha
   # consistency. Can use the same EventListeners as SyncEventRouterbe sp.
   class AsyncEventRouter < EventRouterBase
     DEFAULT_POLL_SECONDS = 10
+    DEFAULT_PAGE_SIZE = 20
 
     def initialize(projection_name, checkpoint_strategy)
       super()
@@ -14,29 +15,29 @@ module Akasha
 
     # TODO: Change it so connect! returns the thread.
 
-    def connect!(repository)
+    def connect!(repository, page_size: DEFAULT_PAGE_SIZE, poll: DEFAULT_POLL_SECONDS)
       repository.merge_all_by_event(into: @projection_name, only: registered_event_names)
       projection_stream = repository.store.streams[@projection_name]
       Thread.new do
-        run_forever(projection_stream)
+        run_forever(projection_stream, page_size, poll)
       end
     end
 
     private
 
     # TODO: Make it stoppable.
-    def run_forever(projection_stream, poll = DEFAULT_POLL_SECONDS)
+    def run_forever(projection_stream, page_size, poll)
       position = @checkpoint.latest
       loop do
-        projection_stream.read_events(position, 20, poll) do |events|
+        projection_stream.read_events(position, page_size, poll) do |events|
           begin
             events.each do |event|
-              # require 'pry-byebug'; binding.pry
               route(event.name, event.metadata.aggregate_id, **event.data)
               position = @checkpoint.ack(position)
             end
           rescue => e
             puts e # TODO: Decide on a strategy.
+            position = @checkpoint.ack(position)
           end
         end
       end

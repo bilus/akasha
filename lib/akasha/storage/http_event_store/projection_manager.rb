@@ -22,9 +22,21 @@ module Akasha
         private
 
         def projection_javascript(name, events)
-          et_streams = events.map { |en| "\"$et-#{en}\"" }
           callbacks = events.map { |en| "\"#{en}\": function(s,e) { linkTo('#{name}', e) }" }
-          "fromStreams([#{et_streams.join(', ')}]).when({ #{callbacks.join(', ')} });"
+          # Alternative code using internal indexing.
+          # It's broken though because it reorders events for aggregates (because the streams
+          # it uses are per-event). An alternative would be to use aggregates as streams
+          # to pull from.
+          # et_streams = events.map { |en| "\"$et-#{en}\"" }
+          # "fromStreams([#{et_streams.join(', ')}]).when({ #{callbacks.join(', ')} });"
+          ''"
+          // This is hard to find, so I'm leaving it here:
+          // options({
+          //   reorderEvents: true,
+          //   processingLag: 100 //time in ms
+          // });
+          fromAll().when({ #{callbacks.join(', ')} });
+          "''
         end
 
         def attempt_create_projection(name, event_names)

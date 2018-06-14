@@ -85,7 +85,8 @@ end
   - [x] Take care of created_at/updated_at (saved_at?)
   - [x] Tests for HttpEventStore
   - [x] Projections
-  - [ ] Test for AsyncEventRouter using events not aggregate
+  - [x] Test for AsyncEventRouter using events not aggregate
+  - [x] BUG: Projection reorders events
   - [ ] AsyncEventRouter/Checkpoint uses store not repository, remove mentions of aggregate id, pass event.metadata instead
   - [ ] SyncEventRouter => EventRouter
 - [ ] Telemetry (Dogstatsd)
