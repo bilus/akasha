@@ -11,8 +11,8 @@ module Akasha
     DEFAULT_CHECKPOINT_STRATEGY = Akasha::Checkpoint::HttpEventStoreCheckpoint
 
     def connect!(repository, projection_name: DEFAULT_PROJECTION_STREAM,
-                             checkpoint_strategy: DEFAULT_CHECKPOINT_STRATEGY,
-                             page_size: DEFAULT_PAGE_SIZE, poll: DEFAULT_POLL_SECONDS)
+                 checkpoint_strategy: DEFAULT_CHECKPOINT_STRATEGY,
+                 page_size: DEFAULT_PAGE_SIZE, poll: DEFAULT_POLL_SECONDS)
       projection_stream = repository.store.streams[projection_name]
       checkpoint = checkpoint_strategy.is_a?(Class) ? checkpoint_strategy.new(projection_stream) : checkpoint_strategy
       repository.merge_all_by_event(into: projection_name, only: registered_event_names)

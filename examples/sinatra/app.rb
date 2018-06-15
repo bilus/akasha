@@ -44,11 +44,13 @@ class Notifier < Akasha::EventListener
   end
 end
 
+# Example Akasha application.
 class MyAkashaApp
   include Singleton
 
   attr_accessor :command_router
 
+  # rubocop:disable Metrics/AbcSize
   def initialize
     @command_router = Akasha::CommandRouter.new
 

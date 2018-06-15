@@ -8,11 +8,11 @@ module Akasha
     # Registers a new event listener, derived from
     # `Akasha::EventListener`.
     def register_event_listener(event_name, listener)
-      if listener.is_a?(Class)
-        @routes[event_name] << listener.new
-      else
-        @routes[event_name] << listener
-      end
+      @routes[event_name] << if listener.is_a?(Class)
+                               listener.new
+                             else
+                               listener
+                             end
     end
 
     # Routes an event.
@@ -35,7 +35,7 @@ module Akasha
     private
 
     def log(msg)
-      puts msg # rubocop:disable Rails/Output
+      puts msg
     end
   end
 end
