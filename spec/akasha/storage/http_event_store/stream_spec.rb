@@ -4,10 +4,11 @@ describe Akasha::Storage::HttpEventStore::Stream, integration: true do
 
   let(:events) do
     [
-      Akasha::Event.new(:something_changed),
-      Akasha::Event.new(:things_happened)
+      Akasha::Event.new(:things_happened, event_id, OpenStruct.new(foo: 'bar'), bar: 'baz'),
+      Akasha::Event.new(:something_changed)
     ]
   end
+  let(:event_id) { SecureRandom.uuid }
 
   describe '#write_events' do
     it 'succeeds for empty array' do
@@ -17,6 +18,27 @@ describe Akasha::Storage::HttpEventStore::Stream, integration: true do
     it 'succeeds for array of events' do
       expect { subject.write_events(events) }.to_not raise_error
       expect(subject.read_events(0, 999)).to_not be_empty
+    end
+
+    it 'persists event id' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.id).to eq event_id
+    end
+
+    it 'persists data' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.data).to eq(bar: 'baz')
+    end
+
+    it 'persists metadata' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'bar'
+    end
+
+    it 'persists metadata after assignment' do
+      events[0].metadata.foo = 'BAR'
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'BAR'
     end
   end
 

@@ -13,7 +13,7 @@ module Akasha
             base = {
               'eventType' => event.name,
               'data' => event.data,
-              'metaData' => event.metadata.to_hash
+              'metaData' => event.metadata.to_h
             }
             base['eventId'] = event.id unless event.id.nil?
             base
