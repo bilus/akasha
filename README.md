@@ -87,8 +87,11 @@ end
   - [x] Projections
   - [x] Test for AsyncEventRouter using events not aggregate
   - [x] BUG: Projection reorders events
-  - [ ] AsyncEventRouter/Checkpoint uses store not repository, remove mentions of aggregate id, pass event.metadata instead
-  - [ ] EventRouter => EventRouter
+  - [x] Simplify AsyncEventRouter init
+  - [x] SyncEventRouter => EventRouter
+  - [x] Metadata not persisted
+  - [ ] Assymetry between data and metadata.
+  - [ ] Faster shutdown.
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend
 
