@@ -1,23 +1,21 @@
 module Akasha
   # Base class for routing events to event listeners.
   class EventRouterBase
-    def initialize
+    def initialize(routes = {})
       @routes = Hash.new { |hash, key| hash[key] = [] }
+      @routes.merge!(routes)
     end
 
     # Registers a new event listener, derived from
     # `Akasha::EventListener`.
     def register_event_listener(event_name, listener)
-      @routes[event_name] << if listener.is_a?(Class)
-                               listener.new
-                             else
-                               listener
-                             end
+      @routes[event_name] << listener
     end
 
     # Routes an event.
     def route(event_name, aggregate_id, **data)
       @routes[event_name].each do |listener|
+        listener = listener.new if listener.is_a?(Class)
         begin
           listener.public_send(:"on_#{event_name}", aggregate_id, **data)
         rescue RuntimeError => e
