@@ -2,7 +2,8 @@ describe Akasha::Storage::HttpEventStore::EventSerializer do
   let(:events) do
     [
       Akasha::Event.new(:name_changed, old_name: nil, new_name: 'new name'),
-      Akasha::Event.new(:name_changed, old_name: 'new_name', new_name: 'newest name')
+      Akasha::Event.new(:name_changed, old_name: 'new_name', new_name: 'newest name'),
+      Akasha::Event.new(:name_changed, { foo: 'bar' }, baz: 'qux')
     ]
   end
 

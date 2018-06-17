@@ -1,4 +1,3 @@
-require 'ostruct'
 require 'securerandom'
 require 'time'
 
@@ -7,10 +6,10 @@ module Akasha
   class Event
     attr_reader :id, :name, :data, :metadata
 
-    def initialize(name, id = nil, metadata = OpenStruct.new, **data)
+    def initialize(name, id = nil, metadata = {}, **data)
       @id = id || SecureRandom.uuid.to_s # TODO: Use something better.
       @name = name
-      @metadata = metadata || OpenStruct.new(created_at: Time.now.utc)
+      @metadata = metadata || { created_at: Time.now.utc }
       @data = data
     end
 

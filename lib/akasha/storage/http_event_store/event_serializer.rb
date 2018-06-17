@@ -13,7 +13,7 @@ module Akasha
             base = {
               'eventType' => event.name,
               'data' => event.data,
-              'metaData' => event.metadata.to_h
+              'metaData' => event.metadata
             }
             base['eventId'] = event.id unless event.id.nil?
             base
@@ -24,7 +24,7 @@ module Akasha
           es_events.map do |ev|
             metadata = ev['metaData']&.symbolize_keys || {}
             data = ev['data']&.symbolize_keys || {}
-            event = Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], OpenStruct.new(metadata), **data)
+            event = Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], metadata, **data)
             event
           end
         end

@@ -4,7 +4,7 @@ describe Akasha::Storage::HttpEventStore::Stream, integration: true do
 
   let(:events) do
     [
-      Akasha::Event.new(:things_happened, event_id, OpenStruct.new(foo: 'bar'), bar: 'baz'),
+      Akasha::Event.new(:things_happened, event_id, { foo: 'bar' }, bar: 'baz'),
       Akasha::Event.new(:something_changed)
     ]
   end
@@ -32,13 +32,7 @@ describe Akasha::Storage::HttpEventStore::Stream, integration: true do
 
     it 'persists metadata' do
       subject.write_events(events)
-      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'bar'
-    end
-
-    it 'persists metadata after assignment' do
-      events[0].metadata.foo = 'BAR'
-      subject.write_events(events)
-      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'BAR'
+      expect(subject.read_events(0, 1).first.metadata).to eq(foo: 'bar')
     end
   end
 

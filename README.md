@@ -46,6 +46,7 @@ This library itself makes no assumptions about any web framework, you can use it
   - [ ] Do we need EventListener class?
   - [ ] Assymetry between data and metadata.
   - [ ] Faster shutdown.
+  - [x] Assymetry between data and metadata.
 - [ ] Namespacing for events and aggregates and the projection
 - [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
