@@ -50,9 +50,15 @@ class MyAkashaApp
 
   attr_accessor :command_router
 
-  def initialize
+  def initialize # rubocop:disable Metrics/MethodLength
     # Aggregates will load from and save to in-memory storage.
-    repository = Akasha::Repository.new(Akasha::Storage::HttpEventStore.new(username: 'admin', password: 'changeit'), namespace: :my_app)
+    repository = Akasha::Repository.new(
+      Akasha::Storage::HttpEventStore.new(
+        username: 'admin',
+        password: 'changeit'
+      ),
+      namespace: :my_app
+    )
     Akasha::Aggregate.connect!(repository)
 
     # Set up event listeners.
@@ -68,7 +74,7 @@ class MyAkashaApp
 
     @command_router = Akasha::CommandRouter.new(
       sign_up: User,
-      sign_up_admin: ->(aggregate_id, **data) {
+      sign_up_admin: lambda { |aggregate_id, **data|
         user = User.find_or_create(aggregate_id)
         user.sign_up(email: data[:email], password: data[:password], admin: true)
         user.save!

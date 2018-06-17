@@ -18,9 +18,11 @@ describe Akasha::EventRouterBase do
     end
 
     it 'ignores exceptions' do
-      expect_any_instance_of(Notifier).to receive(:on_name_changed).with('item-1', new_name: 'new name')
+      expect_any_instance_of(Notifier).to receive(:on_name_changed)
+        .with('item-1', new_name: 'new name')
         .and_raise('Oops!')
-      expect_any_instance_of(ItemLogger).to receive(:on_name_changed).with('item-1', new_name: 'new name')
+      expect_any_instance_of(ItemLogger).to receive(:on_name_changed)
+        .with('item-1', new_name: 'new name')
         .and_raise('Oops!')
       expect { subject }.to_not raise_error
     end

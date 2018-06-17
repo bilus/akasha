@@ -56,9 +56,9 @@ describe Akasha::CommandRouter do
     context 'with valid custom target registered via constructor' do
       let(:router) do
         described_class.new(change_item_name: lambda do |_command, aggregate_id, **data|
-            item = Item.find_or_create(aggregate_id)
-            item.name = data[:new_name]
-            item.save!
+          item = Item.find_or_create(aggregate_id)
+          item.name = data[:new_name]
+          item.save!
         end)
       end
 

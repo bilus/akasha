@@ -41,12 +41,11 @@ This library itself makes no assumptions about any web framework, you can use it
   - [x] Simplify AsyncEventRouter init
   - [x] SyncEventRouter => EventRouter
   - [x] Metadata not persisted
-- [ ] Refactoring & simplification.
+- [x] Refactoring & simplification.
   - [x] Hash-based event and command router
-  - [ ] Do we need EventListener class?
-  - [ ] Assymetry between data and metadata.
-  - [ ] Faster shutdown.
+  - [x] Do we need EventListener class? Yes.
   - [x] Assymetry between data and metadata.
+  - [x] Faster shutdown.
 - [ ] Namespacing for events and aggregates and the projection
 - [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
