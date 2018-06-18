@@ -5,7 +5,7 @@ module Akasha
   # Event router working that can run in the background, providing eventual
   # consistency. Can use the same EventListeners as the synchronous EventRouter.
   class AsyncEventRouter < EventRouterBase
-    DEFAULT_POLL_SECONDS = 10
+    DEFAULT_POLL_SECONDS = 2
     DEFAULT_PAGE_SIZE = 20
     DEFAULT_PROJECTION_STREAM = 'AsyncEventRouter'.freeze
     DEFAULT_CHECKPOINT_STRATEGY = Akasha::Checkpoint::HttpEventStoreCheckpoint
@@ -30,7 +30,7 @@ module Akasha
         projection_stream.read_events(position, page_size, poll) do |events|
           begin
             events.each do |event|
-              route(event.name, event.metadata.aggregate_id, **event.data)
+              route(event.name, event.metadata[:aggregate_id], **event.data)
               position = checkpoint.ack(position)
             end
           rescue RuntimeError => e

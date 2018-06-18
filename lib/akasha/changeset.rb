@@ -11,8 +11,8 @@ module Akasha
 
     # Adds an event to the changeset.
     def append(event_name, **data)
-      event = Akasha::Event.new(event_name, **data)
-      event.metadata.aggregate_id = @aggregate_id
+      id = SecureRandom.uuid
+      event = Akasha::Event.new(event_name, id, { aggregate_id: @aggregate_id }, **data)
       @events << event
     end
 

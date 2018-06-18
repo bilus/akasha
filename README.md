@@ -20,65 +20,16 @@ Or install it yourself as:
 
 ## Usage
 
-The code below uses Sinatra to demonstrate how to use the library in a web application.
-This library makes no assumptions about any web framework, you can use it in any way you see fit.
+There is an example Sinatra app under `examples/sinatra` showing how to use the library in a web application.
+This library itself makes no assumptions about any web framework, you can use it in any way you see fit.
 
-```ruby
-require 'akasha'
-require 'sinatra'
-
-class User < Akasha::Aggregate
-  def sign_up(email:, password:, admin: false, **)
-    changeset.append(:user_signed_up, email: email, password: password, admin: admin)
-  end
-
-  def on_user_signed_up(email:, password:, admin:, **)
-    @email = email
-    @password = password
-    @admin = admin
-  end
-end
-
-
-before do
-  @router = Akasha::CommandRouter.new
-
-  # Aggregates will load from and save to in-memory storage.
-  repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
-  Akasha::Aggregate.connect!(repository)
-
-  # This is how you link commands to aggregates.
-  @router.register_default_route(:sign_up, User)
-
-  # Nearly identital to the default handling above but we're setting the admin
-  # flag to demo custom command handling.
-  @router.register_route(:sign_up_admin) do |aggregate_id, **data|
-    user = User.find_or_create(aggregate_id)
-    user.sign_up(email: data[:email], password: data[:password], admin: true)
-    user.save!
-  end
-end
-
-post '/users/:user_id' do # With CQRS client pass unique aggregate ids.
-  @router.route!(:sign_up,
-                 params[:user_id],
-                 email: params[:email],
-                 password: params[:password])
-  'OK'
-end
-```
-
-> Currently, only memory-based repository is supported.
-
-## Next steps
+## TODO
 
 - [x] Command routing (default and user-defined)
 - [x] Synchronous EventHandler
 - [x] HTTP Eventstore storage backend
-- [ ] Namespacing for events and aggregates and the projection
-- [ ] Event#id for better idempotence (validate this claim)
-- [ ] Version-based concurrency
-- [ ] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
+- [x] Event#id for better idempotence (validate this claim)
+- [x] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
   - [x] Uniform intetrface for Client -- use Event.
   - [x] Rewrite Client
   - [x] Refactor Client code
@@ -90,8 +41,13 @@ end
   - [x] Simplify AsyncEventRouter init
   - [x] SyncEventRouter => EventRouter
   - [x] Metadata not persisted
-  - [ ] Assymetry between data and metadata.
-  - [ ] Faster shutdown.
+- [x] Refactoring & simplification.
+  - [x] Hash-based event and command router
+  - [x] Do we need EventListener class? Yes.
+  - [x] Assymetry between data and metadata.
+  - [x] Faster shutdown.
+- [ ] Namespacing for events and aggregates and the projection
+- [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend
 

@@ -1,13 +1,22 @@
 require_relative 'command_router/default_handler'
+require 'corefines/hash'
 
 module Akasha
   # Routes commands to their handlers.
   class CommandRouter
+    using Corefines::Hash
+
     # Raised when no corresponding target can be found for a command.
     NotFoundError = Class.new(RuntimeError)
 
-    def initialize
-      @routes = {}
+    def initialize(routes = {})
+      @routes = routes.flat_map do |command, target|
+        if target.is_a?(Class)
+          { command => DefaultHandler.new(target) }
+        else
+          { command => target }
+        end
+      end
     end
 
     # Registers a custom route, specifying either a lambda or a block.
