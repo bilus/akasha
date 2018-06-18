@@ -1,9 +1,11 @@
 # Changelog
 
-## Version TBD
+## Version 0.3.0
 
-* Asynchronous event listeners.
-
+* Asynchronous event listeners (`AsyncEventRouter`).
+* Simplified initialization of event- and command routers.
+* Remove dependency on the `http_event_store` gem.
+* `Event#metadata` is no longer OpenStruct.
 
 ## Version 0.2.0
 
