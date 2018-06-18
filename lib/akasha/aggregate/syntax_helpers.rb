@@ -20,7 +20,7 @@ module Akasha
     module ClassMethods
       # Connects to a repository.
       def connect!(repository)
-        @@repository = repository
+        @@repository = repository # rubocop:disable Style/ClassVars
       end
 
       # Returns repository or nil if `connect!` not called.

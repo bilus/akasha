@@ -1,6 +1,8 @@
 require 'akasha'
 require 'sinatra'
+require 'singleton'
 
+# An example aggregate.
 class User < Akasha::Aggregate
   attr_reader :email
 
@@ -15,6 +17,14 @@ class User < Akasha::Aggregate
   end
 end
 
+# An example materializer.
+class UserListMaterializer < Akasha::EventListener
+  def on_user_signed_up(user_id, **)
+    # Update database.
+  end
+end
+
+# An example event listener; will be used asynchronously.
 class Notifier < Akasha::EventListener
   def on_user_signed_up(user_id, **)
     notify_about_signup(user_id)
@@ -26,42 +36,63 @@ class Notifier < Akasha::EventListener
     # Here we could just grab email from the event but let's demonstrate
     # how to load an aggregate from events.
     user = User.find_or_create(user_id)
-    email = <<~EOS
+    email = <<~EMAIL
       User #{user.email} just signed up!
-    EOS
+    EMAIL
     # Let's not send any emails... :)
     puts email
   end
 end
 
-before do
-  @command_router = Akasha::CommandRouter.new
+# Example Akasha application.
+class MyAkashaApp
+  include Singleton
 
-  # Aggregates will load from and save to in-memory storage.
-  repository = Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new)
-  Akasha::Aggregate.connect!(repository)
+  attr_accessor :command_router
 
-  # Set up event listeners.
-  @event_router = Akasha::EventRouter.new
-  @event_router.register_event_listener(:user_signed_up, Notifier)
-  repository.subscribe(@event_router)
+  # rubocop:disable Metrics/AbcSize
+  def initialize
+    @command_router = Akasha::CommandRouter.new
 
-  # This is how you link commands to aggregates.
-  @command_router.register_default_route(:sign_up, User)
+    # Aggregates will load from and save to in-memory storage.
+    repository = Akasha::Repository.new(Akasha::Storage::HttpEventStore.new(username: 'admin', password: 'changeit'))
+    Akasha::Aggregate.connect!(repository)
 
-  # Nearly identital to the default handling above but we're setting the admin
-  # flag to demo custom command handling.
-  @command_router.register_route(:sign_up_admin) do |aggregate_id, **data|
-    user = User.find_or_create(aggregate_id)
-    user.sign_up(email: data[:email], password: data[:password], admin: true)
-    user.save!
+    # Set up event listeners.
+    event_router = Akasha::EventRouter.new
+    event_router.register_event_listener(:user_signed_up, UserListMaterializer)
+    event_router.connect!(repository)
+
+    async_event_router = Akasha::AsyncEventRouter.new
+    async_event_router.register_event_listener(:user_signed_up, Notifier)
+    async_event_router.connect!(repository) # Returns Thread instance.
+
+    # This is how you link commands to aggregates.
+    @command_router.register_default_route(:sign_up, User)
+
+    # Nearly identital to the default handling above but we're setting the admin
+    # flag to demo custom command handling.
+    @command_router.register_route(:sign_up_admin) do |aggregate_id, **data|
+      user = User.find_or_create(aggregate_id)
+      user.sign_up(email: data[:email], password: data[:password], admin: true)
+      user.save!
+    end
   end
 end
 
+helpers do
+  def route_command(*args)
+    MyAkashaApp.instance.command_router.route!(*args)
+  end
+end
+
+configure do
+end
+
 post '/users/:user_id' do # With CQRS client pass unique aggregate ids.
-  @command_router.route!(:sign_up,
-                 params[:user_id],
-                 email: params[:email],
-                 password: params[:password])
+  route_command(:sign_up,
+                params[:user_id],
+                email: params[:email],
+                password: params[:password])
   'OK'
 end

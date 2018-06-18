@@ -33,7 +33,7 @@ describe Akasha::CommandRouter do
 
     context 'with valid custom target' do
       before do
-        router.register_route(:change_item_name) do |command, aggregate_id, **data|
+        router.register_route(:change_item_name) do |_command, aggregate_id, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!

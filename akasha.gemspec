@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
 
-  spec.summary       = %q{CQRS library for Ruby}
-  spec.description   = %q{A simple CQRS library for Ruby.}
-  spec.homepage      = "https://github.com/bilus/akasha"
+  spec.summary       = 'CQRS library for Ruby'
+  spec.description   = 'A simple CQRS library for Ruby.'
+  spec.homepage      = 'https://github.com/bilus/akasha'
   spec.license       = 'MIT'
 
   # Specify which files should be added to the gem when it is released.
@@ -23,11 +23,18 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'http_event_store'
+  spec.add_dependency 'faraday', '~> 0.15'
+  spec.add_dependency 'faraday_middleware'
+  spec.add_dependency 'typhoeus', '~> 1.3'
+  spec.add_dependency 'rack', '~> 2.0'
+  spec.add_dependency 'retries', '~> 0.0'
+  spec.add_dependency 'corefines', '~>1.11'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.7'
-  spec.add_development_dependency 'timecop'
-  spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'rspec-wait', '~> 0.0.9'
+  spec.add_development_dependency 'rubocop', '~> 0.50'
+  spec.add_development_dependency 'timecop', '~> 0.9'
 end

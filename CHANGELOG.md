@@ -1,5 +1,10 @@
 # Changelog
 
+## Version TBD
+
+* Asynchronous event listeners.
+
+
 ## Version 0.2.0
 
 * Synchronous event listeners (see `examples/sinatra/app.rb`).

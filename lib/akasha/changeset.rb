@@ -11,7 +11,9 @@ module Akasha
 
     # Adds an event to the changeset.
     def append(event_name, **data)
-      @events << Akasha::Event.new(event_name, **data)
+      event = Akasha::Event.new(event_name, **data)
+      event.metadata.aggregate_id = @aggregate_id
+      @events << event
     end
 
     # Returns true if no changes recorded.

@@ -1,34 +1,44 @@
-describe Akasha::Storage::MemoryEventStore::Stream do
+describe Akasha::Storage::HttpEventStore::Stream, integration: true do
+  subject { described_class.new(http_event_store_client, stream) }
+  let(:stream) { gensym(:stream) }
+
   let(:events) do
     [
-      Akasha::Event.new(:something_changed),
-      Akasha::Event.new(:things_happened)
+      Akasha::Event.new(:things_happened, event_id, OpenStruct.new(foo: 'bar'), bar: 'baz'),
+      Akasha::Event.new(:something_changed)
     ]
   end
+  let(:event_id) { SecureRandom.uuid }
 
   describe '#write_events' do
-    context 'without reduce block' do
-      it 'succeeds for empty array' do
-        expect { subject.write_events([]) }.to_not raise_error
-      end
-
-      it 'succeeds for array of events' do
-        expect { subject.write_events(events) }.to_not raise_error
-        expect(subject.read_events(0, 999)).to_not be_empty
-      end
+    it 'succeeds for empty array' do
+      expect { subject.write_events([]) }.to_not raise_error
     end
 
-    context 'with reduce block' do
-      subject do
-        described_class.new do |_all_events, _new_events|
-          [] # Ignore all events
-        end
-      end
+    it 'succeeds for array of events' do
+      expect { subject.write_events(events) }.to_not raise_error
+      expect(subject.read_events(0, 999)).to_not be_empty
+    end
 
-      it 'stores no events' do
-        subject.write_events(events)
-        expect(subject.read_events(0, 999)).to be_empty
-      end
+    it 'persists event id' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.id).to eq event_id
+    end
+
+    it 'persists data' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.data).to eq(bar: 'baz')
+    end
+
+    it 'persists metadata' do
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'bar'
+    end
+
+    it 'persists metadata after assignment' do
+      events[0].metadata.foo = 'BAR'
+      subject.write_events(events)
+      expect(subject.read_events(0, 1).first.metadata.foo).to eq 'BAR'
     end
   end
 
@@ -89,6 +99,32 @@ describe Akasha::Storage::MemoryEventStore::Stream do
         end
         expect(actual_pages).to eq(expected_pages)
       end
+    end
+  end
+
+  describe '#metadata' do
+    it 'is a hash' do
+      expect(subject.metadata).to be_a Hash
+    end
+  end
+
+  describe '#metadata=' do
+    let(:metadata) do
+      {
+        :$maxCount => 1,
+        foo: 'bar'
+      }
+    end
+
+    it 'sets stream metadata' do
+      subject.metadata = metadata
+      expect(subject.metadata).to include(metadata)
+    end
+
+    it 'can limit the number of events' do
+      subject.metadata = metadata
+      subject.write_events(events)
+      expect(subject.read_events(0, 999).size).to eq 1
     end
   end
 end
