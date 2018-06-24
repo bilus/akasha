@@ -10,36 +10,61 @@ describe Akasha::Storage::HttpEventStore, integration: true do
   describe '#merge_all_by_event' do
     let(:projection_name) { gensym(:projection) }
     let(:stream_name) { gensym(:stream) }
-    let(:world_created) { Akasha::Event.new(gensym(:world_created)) }
-    let(:ruby_invented) { Akasha::Event.new(gensym(:ruby_invented)) }
-    let(:world_ended) { Akasha::Event.new(gensym(:world_ended)) }
+    let(:parallel_universe) { gensym('parallel.universe') }
+    let(:our_universe) { gensym('our.universe') }
     let(:events) do
       [
-        world_created,
-        ruby_invented,
-        world_ended
+        Akasha::Event.new(:world_created).with_metadata(namespace: our_universe),
+        Akasha::Event.new(:ruby_invented).with_metadata(namespace: our_universe),
+        Akasha::Event.new(:world_ended).with_metadata(namespace: our_universe),
+        Akasha::Event.new(:world_created).with_metadata(namespace: parallel_universe),
+        Akasha::Event.new(:world_ended).with_metadata(namespace: parallel_universe)
       ]
     end
     let(:poll_seconds) { 1 }
 
-    it 'creates stream containing events with matching names' do
-      subject.merge_all_by_event(into: projection_name, only: [world_created.name, world_ended.name])
-      subject.streams[stream_name].write_events(events)
+    context 'given a projection without a namespace' do
+      before do
+        subject.merge_all_by_event(into: projection_name, only: %i[world_created world_ended])
+        subject.streams[stream_name].write_events(events)
+      end
 
-      wait(10).for do
-        subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name).uniq
-      end.to match_array([world_created.name, world_ended.name])
+      it 'creates stream containing events with matching names' do
+        wait(10).for do
+          subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name).uniq
+        end.to match_array(%i[world_created world_ended])
+      end
+
+      it 'accepts events regardless of their namespace' do
+        wait(10).for do
+          subject.streams[projection_name].read_events(0, 999, poll_seconds).size
+        end.to be >= 4 # Because other tests will create events as well.
+      end
+    end
+
+    context 'given a projection within a namespace' do
+      before do
+        subject.merge_all_by_event(into: projection_name, only: %i[world_created world_ended],
+                                   namespace: our_universe)
+        subject.streams[stream_name].write_events(events)
+      end
+
+      it 'optionally accepts event only from the specified namespace' do
+        wait(10).for do
+          subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name)
+        end.to match_array(%i[world_created world_ended])
+      end
     end
 
     it 'supports changing the list of names' do
-      subject.merge_all_by_event(into: projection_name, only: [world_created.name, world_ended.name])
+      subject.merge_all_by_event(into: projection_name, only: %i[world_created world_ended], namespace: our_universe)
       subject.streams[projection_name].read_events(0, 999, poll_seconds)
-      subject.merge_all_by_event(into: projection_name, only: [world_created.name])
+      subject.merge_all_by_event(into: projection_name, only: [:world_created], namespace: our_universe)
       subject.streams[stream_name].write_events(events)
 
       wait(10).for do
         subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name).uniq
-      end.to match_array([world_created.name])
+      end.to match_array([:world_created])
     end
   end
 end

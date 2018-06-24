@@ -20,5 +20,9 @@ module Akasha
         data == other.data &&
         metadata == other.metadata
     end
+
+    def with_metadata(metadata)
+      Event.new(@name, @id, @metadata.merge(metadata), **@data)
+    end
   end
 end

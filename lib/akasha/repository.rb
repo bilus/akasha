@@ -3,14 +3,15 @@ module Akasha
   # Not meant to be used directly (see aggregate/syntax_helpers.rb)
   # See specs for usage.
   class Repository
-    attr_reader :store
+    attr_reader :store, :namespace
 
     STREAM_NAME_SEP = '-'.freeze
 
     # Creates a new repository using the underlying `store` (e.g. `MemoryEventStore`).
-    def initialize(store)
+    def initialize(store, namespace: nil)
       @store = store
       @subscribers = []
+      @namespace = namespace
     end
 
     # Loads an aggregate identified by `id` and `klass` from the repository.
@@ -31,8 +32,9 @@ module Akasha
     # Saves an aggregate to the repository, appending events to the corresponding stream.
     def save_aggregate(aggregate)
       changeset = aggregate.changeset
-      stream(aggregate.class, changeset.aggregate_id).write_events(changeset.events)
-      notify_subscribers(aggregate)
+      events = changeset.events.map { |event| event.with_metadata(namespace: @namespace) }
+      stream(aggregate.class, changeset.aggregate_id).write_events(events)
+      notify_subscribers(changeset.aggregate_id, events)
     end
 
     # Subscribes to event streams passing either a lambda or a block.
@@ -54,25 +56,27 @@ module Akasha
     #   `into` - name of the new stream
     #   `only` - array of event names
     def merge_all_by_event(into:, only:)
-      @store.merge_all_by_event(into: into, only: only)
+      @store.merge_all_by_event(into: into, only: only, namespace: @namespace)
     end
 
     private
 
     def stream_name(aggregate_klass, aggregate_id)
-      "#{aggregate_klass}#{STREAM_NAME_SEP}#{aggregate_id}"
+      parts = []
+      parts << @namespace if @namespace
+      parts << aggregate_klass
+      parts << aggregate_id
+      parts.join(STREAM_NAME_SEP)
     end
 
     def stream(aggregate_klass, aggregate_id)
       @store.streams[stream_name(aggregate_klass, aggregate_id)]
     end
 
-    def notify_subscribers(aggregate)
-      id = aggregate.changeset.aggregate_id
-      events = aggregate.changeset.events
+    def notify_subscribers(aggregate_id, events)
       @subscribers.each do |subscriber|
         events.each do |event|
-          subscriber.call(id, event)
+          subscriber.call(aggregate_id, event)
         end
       end
     end
