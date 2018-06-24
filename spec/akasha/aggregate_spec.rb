@@ -54,5 +54,24 @@ describe Akasha::Aggregate do
       item.apply_events(events)
       expect(item.name).to eq 'newest name'
     end
+
+    context 'given events without corresponding on_xx handlers' do
+      let(:events) do
+        [
+          Akasha::Event.new(:name_changed, old_name: nil, new_name: 'new name'),
+          Akasha::Event.new(:unexpected_happened),
+          Akasha::Event.new(:name_changed, old_name: 'new_name', new_name: 'newest name')
+        ]
+      end
+
+      it 'raises no errors' do
+        expect { item.apply_events(events) }.to_not raise_error
+      end
+
+      it 'applies all recognized events' do
+        item.apply_events(events)
+        expect(item.name).to eq 'newest name'
+      end
+    end
   end
 end

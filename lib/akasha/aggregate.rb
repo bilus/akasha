@@ -29,7 +29,8 @@ module Akasha
     # Used by Repository.
     def apply_events(events)
       events.each do |event|
-        send(event_handler(event), event.data)
+        method_name = event_handler(event)
+        send(method_name, event.data) if respond_to?(method_name)
       end
     end
 

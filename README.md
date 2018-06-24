@@ -45,7 +45,7 @@ This library itself makes no assumptions about any web framework, you can use it
   - [x] Hash-based event and command router
   - [x] Assymetry between data and metadata
   - [x] Faster shutdown
-- [ ] Namespacing for events and aggregates and the projection
+- [x] Namespacing for events and aggregates and the projection
 - [ ] Way to control the number of retries in face of network failures
 - [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
