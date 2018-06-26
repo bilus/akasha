@@ -26,9 +26,14 @@ module Akasha
       # Arguments:
       #   `new_stream_name` - name of the new stream
       #   `only` - array of event names
-      def merge_all_by_event(into:, only:)
+      #   `namespace` - optional namespace; if provided, the resulting stream will
+      #                 only contain events with the same metadata.namespace
+      def merge_all_by_event(into:, only:, namespace: nil)
         new_stream = Stream.new do |new_events|
-          new_events.select { |event| only.include?(event.name) }
+          new_events.select do |event|
+            (namespace.nil? || namespace == event.metadata[:namespace]) &&
+              only.include?(event.name)
+          end
         end
         @streams[into] = new_stream
         @projections << new_stream

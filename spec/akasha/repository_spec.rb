@@ -23,14 +23,30 @@ describe Akasha::Repository do
     end
 
     context 'for an existing aggregate' do
-      before do
-        item.name = 'foo'
-        subject.save_aggregate(item)
+      context 'within the same namespace' do
+        before do
+          item.name = 'foo'
+          subject.save_aggregate(item)
+        end
+
+        it 'loads the aggregate' do
+          item = subject.load_aggregate(Item, 'item-1')
+          expect(item.name).to eq 'foo'
+        end
       end
 
-      it 'loads the aggregate' do
-        item = subject.load_aggregate(Item, 'item-1')
-        expect(item.name).to eq 'foo'
+      context 'within a different namespace' do
+        let(:another_repo) { described_class.new(store, namespace: 'another.namespace') }
+
+        before do
+          item.name = 'foo'
+          another_repo.save_aggregate(item)
+        end
+
+        it 'returns a new aggregate' do
+          item = subject.load_aggregate(Item, 'item-1')
+          expect(item.name).to be_nil
+        end
       end
     end
   end

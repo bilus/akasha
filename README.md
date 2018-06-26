@@ -30,23 +30,23 @@ This library itself makes no assumptions about any web framework, you can use it
 - [x] HTTP Eventstore storage backend
 - [x] Event#id for better idempotence (validate this claim)
 - [x] Async EventHandlers (storing cursors in Eventstore, configurable durability guarantees)
-  - [x] Uniform intetrface for Client -- use Event.
+  - [x] Uniform interface for Client -- use Event.
   - [x] Rewrite Client
   - [x] Refactor Client code
   - [x] Take care of created_at/updated_at (saved_at?)
   - [x] Tests for HttpEventStore
   - [x] Projections
   - [x] Test for AsyncEventRouter using events not aggregate
-  - [x] BUG: Projection reorders events
+  - [x] BUG: Projection reorders events (need to use fromAll after all)
   - [x] Simplify AsyncEventRouter init
   - [x] SyncEventRouter => EventRouter
   - [x] Metadata not persisted
 - [x] Refactoring & simplification.
   - [x] Hash-based event and command router
-  - [x] Do we need EventListener class? Yes.
-  - [x] Assymetry between data and metadata.
-  - [x] Faster shutdown.
-- [ ] Namespacing for events and aggregates and the projection
+  - [x] Assymetry between data and metadata
+  - [x] Faster shutdown
+- [x] Namespacing for events and aggregates and the projection
+- [ ] Way to control the number of retries in face of network failures
 - [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend

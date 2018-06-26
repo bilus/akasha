@@ -14,3 +14,5 @@ Metrics/MethodLength:
   Max: 15
 Rails/Output:
   Enabled: false
+Style/FormatStringToken:
+  Enabled: false

@@ -56,9 +56,12 @@ module Akasha
         # Arguments:
         #   `name` - name of the projection stream
         #   `event_names` - array of event names
-        def merge_all_by_event(name, event_names, max_retries: 0)
+        #   `namespace` - optional namespace; if provided, the resulting stream will
+        #                 only contain events with the same metadata.namespace
+        #   `max_retries` - how many times to retry in case of network failures
+        def merge_all_by_event(name, event_names, namespace: nil, max_retries: 0)
           retrying_on_network_failures(max_retries) do
-            ProjectionManager.new(self).merge_all_by_event(name, event_names)
+            ProjectionManager.new(self).merge_all_by_event(name, event_names, namespace: namespace)
           end
         end
 

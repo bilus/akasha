@@ -50,8 +50,10 @@ module Akasha
       # Arguments:
       #   `into` - name of the new stream
       #   `only` - array of event names
-      def merge_all_by_event(into:, only:)
-        @client.merge_all_by_event(into, only)
+      #   `namespace` - optional namespace; if provided, the resulting stream will
+      #                 only contain events with the same metadata.namespace
+      def merge_all_by_event(into:, only:, namespace: nil)
+        @client.merge_all_by_event(into, only, namespace: namespace)
       end
     end
   end

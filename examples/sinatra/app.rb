@@ -57,7 +57,7 @@ class MyAkashaApp
         username: 'admin',
         password: 'changeit'
       ),
-      namespace: :my_app
+      namespace: :'sinatra.example.akasha.bilus.io'
     )
     Akasha::Aggregate.connect!(repository)
 

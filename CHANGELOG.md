@@ -1,5 +1,12 @@
 # Changelog
 
+## Version xx
+
+* Optional namespacing for aggregate/projection streams and events allowing for isolation
+  between applications. [#12](https://github.com/bilus/akasha/pull/12)
+* Fix Unhandled events in stream break aggregate loading. [Issue #5](https://github.com/bilus/akasha/issues/5)
+
+
 ## Version 0.3.0
 
 * Asynchronous event listeners (`AsyncEventRouter`). [#9](https://github.com/bilus/akasha/pull/9)
