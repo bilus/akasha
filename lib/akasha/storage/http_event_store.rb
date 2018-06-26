@@ -1,30 +1,11 @@
 require_relative 'http_event_store/client'
 require_relative 'http_event_store/stream'
+require_relative 'http_event_store/exceptions'
 
 module Akasha
   module Storage
     # HTTP-based interface to Eventstore (https://geteventstore.com)
     class HttpEventStore
-      # Base class for all HTTP Event store errors.
-      Error = Class.new(RuntimeError)
-      # Stream name contains invalid characters.
-      InvalidStreamNameError = Class.new(Error)
-
-      # Base class for HTTP errors.
-      class HttpError < Error
-        attr_reader :status_code
-
-        def initialize(status_code)
-          @status_code = status_code
-          super("Unexpected HTTP response: #{@status_code}")
-        end
-      end
-
-      # 4xx HTTP status code.
-      HttpClientError = Class.new(HttpError)
-      # 5xx HTTP status code.
-      HttpServerError = Class.new(HttpError)
-
       # Creates a new event store client, connecting to the specified host and port
       # using an optional username and password.
       def initialize(host: 'localhost', port: 2113, username: nil, password: nil)
