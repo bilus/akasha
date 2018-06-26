@@ -1,6 +1,6 @@
 # Changelog
 
-## Version xx
+## Version 0.4.0.edge1
 
 * Optional namespacing for aggregate/projection streams and events allowing for isolation
   between applications. [#12](https://github.com/bilus/akasha/pull/12)

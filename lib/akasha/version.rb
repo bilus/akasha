@@ -1,3 +1,3 @@
 module Akasha
-  VERSION = '0.3.0'.freeze
+  VERSION = '0.4.0.edge1'.freeze
 end
