@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.4.0.edge2
+
+* Control the maximum number of retries in case of network related failures. [#14](https://github.com/bilus/akasha/pull/14)
+  Example:
+
+   ```ruby
+   store = Akasha::Storage::HttpEventStore.new(..., max_retries: 10)
+   ```
+
+
 ## Version 0.4.0.edge1
 
 * Optional namespacing for aggregate/projection streams and events allowing for isolation

@@ -46,7 +46,7 @@ This library itself makes no assumptions about any web framework, you can use it
   - [x] Assymetry between data and metadata
   - [x] Faster shutdown
 - [x] Namespacing for events and aggregates and the projection
-- [ ] Way to control the number of retries in face of network failures
+- [x] Way to control the number of retries in face of network failures
 - [ ] Version-based concurrency
 - [ ] Telemetry (Dogstatsd)
 - [ ] Socket-based Eventstore storage backend

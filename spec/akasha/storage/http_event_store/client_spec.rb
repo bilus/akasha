@@ -11,7 +11,8 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
   end
 
   describe '#retry_append_to_stream' do
-    let(:actual_events) { subject.retry_read_events_forward(stream, 0, 999) }
+    let(:actual_events) { subject.retry_read_events_forward(stream, 0, 999, max_retries: max_retries) }
+    let(:max_retries) { 0 }
 
     it 'saves all events' do
       subject.retry_append_to_stream(stream, events)
@@ -29,6 +30,13 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
       event = Akasha::Event.new(:problem_occurred, id, foo: 'bar')
       subject.retry_append_to_stream(stream, [event])
       expect(actual_events.first.id).to eq id
+    end
+
+    it 'optionally retries on network errors' do
+      expect(subject).to(receive(:append_to_stream)).ordered.twice.and_raise(Faraday::TimeoutError)
+      expect(subject).to(receive(:append_to_stream)).ordered.once.and_call_original
+      subject.retry_append_to_stream(stream, events, max_retries: 2)
+      expect(actual_events).to_not be_empty
     end
   end
 
@@ -60,6 +68,12 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
       expect(subject.retry_read_events_forward(stream, 1, 1)).to_not be_empty
       expect(subject.retry_read_events_forward(stream, 2, 1)).to be_empty
     end
+
+    it 'retries optionally on network errors' do
+      expect(subject).to(receive(:safe_read_events)).ordered.twice.and_raise(Faraday::TimeoutError)
+      expect(subject).to(receive(:safe_read_events)).ordered.once.and_call_original
+      expect(subject.retry_read_events_forward(stream, 0, 1, max_retries: 2)).to_not be_empty
+    end
   end
 
   shared_context 'existing stream' do
@@ -73,8 +87,22 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
   describe '#retry_read_metadata' do
     include_context 'existing stream'
 
+    let(:metadata) do
+      {
+        :$maxCount => 1,
+        foo: 'bar'
+      }
+    end
+
     it 'is a hash' do
       expect(subject.retry_read_metadata(existing_stream)).to be_a Hash
+    end
+
+    it 'retries optionally on network errors' do
+      subject.retry_write_metadata(existing_stream, metadata)
+      expect(subject).to(receive(:safe_read_metadata)).ordered.twice.and_raise(Faraday::TimeoutError)
+      expect(subject).to(receive(:safe_read_metadata)).ordered.once.and_call_original
+      expect(subject.retry_read_metadata(existing_stream, max_retries: 2)).to include(metadata)
     end
   end
 
@@ -90,6 +118,13 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
 
     it 'sets stream metadata' do
       subject.retry_write_metadata(existing_stream, metadata)
+      expect(subject.retry_read_metadata(existing_stream)).to include(metadata)
+    end
+
+    it 'optionally retries on network errors' do
+      expect(subject).to(receive(:append_to_stream)).ordered.twice.and_raise(Faraday::TimeoutError)
+      expect(subject).to(receive(:append_to_stream)).ordered.once.and_call_original
+      subject.retry_write_metadata(existing_stream, metadata, max_retries: 2)
       expect(subject.retry_read_metadata(existing_stream)).to include(metadata)
     end
   end

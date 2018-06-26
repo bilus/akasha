@@ -73,9 +73,9 @@ module Akasha
         end
 
         # Updates stream metadata.
-        def retry_write_metadata(stream_name, metadata)
+        def retry_write_metadata(stream_name, metadata, max_retries: 0)
           event = Akasha::Event.new(:stream_metadata_changed, SecureRandom.uuid, metadata)
-          retry_append_to_stream("#{stream_name}/metadata", [event])
+          retry_append_to_stream("#{stream_name}/metadata", [event], max_retries: max_retries)
         end
 
         # Issues a generic request against the API.
