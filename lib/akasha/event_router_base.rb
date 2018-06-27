@@ -3,7 +3,7 @@ module Akasha
   class EventRouterBase
     def initialize(routes = {})
       @routes = Hash.new { |hash, key| hash[key] = [] }
-      @routes.merge!(routes)
+      @routes.merge!(routes.map{ |command, listeners| [command, Array(listeners)] }.to_h)
     end
 
     # Registers a new event listener, derived from
