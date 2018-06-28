@@ -1,8 +1,3 @@
-
-# TODO: Simplify initialization!
-describe Akasha::AsyncEventRouter, integration: true do
-end
-
 describe Akasha::AsyncEventRouter, integration: true do
   let(:repo) { Akasha::Repository.new(store, namespace: unique_namespace) }
   let(:unique_namespace) { SecureRandom.uuid }
