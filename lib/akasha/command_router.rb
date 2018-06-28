@@ -1,4 +1,4 @@
-require_relative 'command_router/default_handler'
+require_relative 'command_router/default_transactor'
 require 'corefines/hash'
 
 module Akasha
@@ -9,10 +9,11 @@ module Akasha
     # Raised when no corresponding target can be found for a command.
     NotFoundError = Class.new(RuntimeError)
 
-    def initialize(routes = {})
+    def initialize(transactor = DefaultTransactor.new, **routes)
+      @transactor = transactor
       @routes = routes.flat_map do |command, target|
         if target.is_a?(Class)
-          { command => DefaultHandler.new(target) }
+          { command => @transactor.call(target) }
         else
           { command => target }
         end
@@ -31,14 +32,14 @@ module Akasha
     # will be loaded from repository, the command will be sent to the object
     # to invoke the object's method, and finally the aggregate will be saved.
     def register_default_route(command, aggregate_class)
-      register_route(command, DefaultHandler.new(aggregate_class))
+      register_route(command, @transactor.call(aggregate_class))
     end
 
     # Routes a command to the registered target.
-    # Raises NotFoundError if no corresponding target can be found.
-    def route!(command, aggregate_id, **data)
-      handler = @routes[command]
-      return handler.call(command, aggregate_id, **data) if handler
+    # Raises `NotFoundError` if no corresponding target can be found.
+    def route!(command, aggregate_id, options = {}, **data)
+      transactor = @routes[command]
+      return transactor.call(command, aggregate_id, options, **data) if transactor
       raise NotFoundError, "Target for command #{command.inspect} not found"
     end
   end

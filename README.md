@@ -48,7 +48,8 @@ This library itself makes no assumptions about any web framework, you can use it
 - [x] Namespacing for events and aggregates and the projection
 - [x] Way to control the number of retries in face of network failures
 - [ ] Version-based concurrency
-- [ ] Telemetry (Dogstatsd)
+- [ ] Snapshots
+- [ ] Telemetry (configurable backend, default: Dogstatsd)
 - [ ] Socket-based Eventstore storage backend
 
 

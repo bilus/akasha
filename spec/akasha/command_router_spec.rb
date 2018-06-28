@@ -12,7 +12,7 @@ describe Akasha::CommandRouter do
     end
 
     it 'persists changes to the aggregate' do
-      router.route!(:change_item_name, 'item-1', new_name: 'new name')
+      router.route!(:change_item_name, 'item-1', {}, new_name: 'new name')
       item = Item.find_or_create('item-1')
       expect(item.name).to eq 'new name'
     end
@@ -37,7 +37,7 @@ describe Akasha::CommandRouter do
 
     context 'with valid custom target' do
       before do
-        router.register_route(:change_item_name) do |_command, aggregate_id, **data|
+        router.register_route(:change_item_name) do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!
@@ -55,7 +55,7 @@ describe Akasha::CommandRouter do
 
     context 'with valid custom target registered via constructor' do
       let(:router) do
-        described_class.new(change_item_name: lambda do |_command, aggregate_id, **data|
+        described_class.new(change_item_name: lambda do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!
