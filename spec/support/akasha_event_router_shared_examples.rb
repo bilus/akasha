@@ -1,4 +1,4 @@
-shared_examples 'EventRouter' do
+shared_examples 'event router' do
   let(:router) { described_class.new }
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
 

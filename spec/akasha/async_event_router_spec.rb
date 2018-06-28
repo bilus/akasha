@@ -4,7 +4,7 @@ describe Akasha::AsyncEventRouter, integration: true do
   let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }
   let(:item) { Item.new('item-1') }
 
-  it_behaves_like 'EventRouter'
+  it_behaves_like 'event router'
 
   describe 'async behavour' do
     before do
