@@ -5,15 +5,20 @@ module Akasha
       class Stream
         attr_reader :name
 
-        def initialize(client, stream_name)
+        # Create a stream object for accessing a ES stream.
+        # Does not create the underlying stream itself.
+        # Use the `max_retries` option to choose how many times to retry in case
+        def initialize(client, stream_name, max_retries: 0)
           @client = client
           @name = stream_name
+          @max_retries = max_retries
         end
 
-        # Appends events to the stream.
+        # Appends `events` to the stream.
+        # of network failures.
         def write_events(events)
           return if events.empty?
-          @client.retry_append_to_stream(@name, events)
+          @client.retry_append_to_stream(@name, events, max_retries: @max_retries)
         end
 
         # Reads events from the stream starting from `start` inclusive.
@@ -31,18 +36,18 @@ module Akasha
               position += events.size
             end
           else
-            @client.retry_read_events_forward(@name, start, page_size, poll)
+            @client.retry_read_events_forward(@name, start, page_size, poll, max_retries: @max_retries)
           end
         end
 
         # Reads stream metadata.
         def metadata
-          @client.retry_read_metadata(@name)
+          @client.retry_read_metadata(@name, max_retries: @max_retries)
         end
 
         # Updates stream metadata.
         def metadata=(metadata)
-          @client.retry_write_metadata(@name, metadata)
+          @client.retry_write_metadata(@name, metadata, max_retries: @max_retries)
         end
       end
     end
