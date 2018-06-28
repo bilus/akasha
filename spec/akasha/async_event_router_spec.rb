@@ -1,16 +1,21 @@
 
 # TODO: Simplify initialization!
 describe Akasha::AsyncEventRouter, integration: true do
-  let(:repository) { Akasha::Repository.new(store, namespace: unique_namespace) }
+end
+
+describe Akasha::AsyncEventRouter, integration: true do
+  let(:repo) { Akasha::Repository.new(store, namespace: unique_namespace) }
   let(:unique_namespace) { SecureRandom.uuid }
   let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }
   let(:item) { Item.new('item-1') }
 
+  # it_behaves_like 'EventRouter'
+
   before do
-    Akasha::Aggregate.connect!(repository)
+    Akasha::Aggregate.connect!(repo)
     subject.register_event_listener(:name_changed, listener)
     subject.register_event_listener(:count_changed, listener)
-    @thread = subject.connect!(repository)
+    @thread = subject.connect!(repo)
   end
 
   after do
