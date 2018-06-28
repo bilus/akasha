@@ -14,10 +14,12 @@ module Akasha
         raise UnsupportedStorageError, "Storage does not support checkpoints: #{stream.class}"
       end
 
+      # rubocop:disable Naming/MemoizedInstanceVariableName
       # Returns the most recently stored next position.
       def latest
         @next_position ||= (read_position || 0)
       end
+      # rubocop:enable Naming/MemoizedInstanceVariableName
 
       # Returns the next position, conditionally storing it (based on the configurable interval).
       def ack(position)

@@ -59,6 +59,7 @@ module Akasha
             });
           JS
         end
+        # rubocop:enable Metrics/MethodLength
 
         def attempt_create_projection(name, event_names, namespace)
           create_options = {

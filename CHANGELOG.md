@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.0.edge3
+
+* Fixed issue for passsing Handlers to EventRouter via constructor, when they aren't wrapped in array.
+
 ## Version 0.4.0.edge2
 
 * Control the maximum number of retries in case of network related failures. [#14](https://github.com/bilus/akasha/pull/14)

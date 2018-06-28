@@ -5,6 +5,7 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Exclude:
     - spec/**/*_spec.rb
+    - spec/**/*_shared_examples.rb
     - akasha.gemspec
 Metrics/ClassLength:
   Max: 110
