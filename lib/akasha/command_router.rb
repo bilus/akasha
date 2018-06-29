@@ -14,20 +14,15 @@ module Akasha
       @routes = routes
     end
 
-    # Registers a custom route, specifying either a lambda or a block.
-    # If both lambda and block are specified, lambda takes precedence.
-    def register_route(command, lambda = nil, &block)
-      callable = lambda || block
-      @routes[command] = callable
-    end
-
-    # Registers a aggregate command handler, mapping a command to an aggregate class.
+    # Registers a handler.
     #
     # As a result, when `#route!` is called for that command, the aggregate will be
     # loaded from repository, the command will be sent to the object to invoke the
     # object's method, and finally the aggregate will be saved.
-    def register_default_route(command, aggregate_class)
-      register_route(command, @transactor.call(aggregate_class))
+    def register(command, aggregate_class = nil, &block)
+      raise ArgumentError, 'Pass either aggregate class or block' if aggregate_class && block
+      handler = aggregate_class || block
+      @routes[command] = handler
     end
 
     # Routes a command to the registered target.

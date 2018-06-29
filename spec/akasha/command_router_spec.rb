@@ -42,11 +42,11 @@ describe Akasha::CommandRouter do
     context 'with valid custom handler' do
       let(:routes) do
         {
-          change_item_name: handler
+          change_item_name: lambda_handler
         }
       end
 
-      let(:handler) do
+      let(:lambda_handler) do
         lambda do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
@@ -70,6 +70,42 @@ describe Akasha::CommandRouter do
           item.name = data[:new_name]
           item.save!
         end)
+      end
+
+      include_examples 'routes registered command'
+    end
+  end
+
+  describe '#register' do
+    let(:routes) { {} }
+
+    let(:lambda_handler) do
+      lambda do |_command, aggregate_id, _options, **data|
+        item = Item.find_or_create(aggregate_id)
+        item.name = data[:new_name]
+        item.save!
+      end
+    end
+
+    context 'called with aggregate class' do
+      before do
+        router.register(:change_item_name, Item)
+      end
+
+      include_examples 'routes registered command'
+    end
+
+    context 'called with lambda' do
+      before do
+        router.register(:change_item_name, lambda_handler)
+      end
+
+      include_examples 'routes registered command'
+    end
+
+    context 'called with block' do
+      before do
+        router.register(:change_item_name, &lambda_handler)
       end
 
       include_examples 'routes registered command'
