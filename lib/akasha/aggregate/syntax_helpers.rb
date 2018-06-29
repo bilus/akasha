@@ -37,9 +37,9 @@ module Akasha
     # Aggregate instance methods.
     module InstanceMethods
       # Saves the aggregate.
-      def save!
+      def save!(concurrency: :none)
         return if changeset.empty?
-        self.class.repository.save_aggregate(self)
+        self.class.repository.save_aggregate(self, concurrency: concurrency)
         changeset.clear!
       end
     end

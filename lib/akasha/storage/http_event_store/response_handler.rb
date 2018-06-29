@@ -4,11 +4,11 @@ module Akasha
       # Handles responses from Eventstore HTTP API.
       class ResponseHandler < Faraday::Response::Middleware
         def on_complete(env)
-          case env[:status]
+          case env.status
           when (400..499)
-            raise HttpClientError, env.status
+            raise HttpClientError, env
           when (500..599)
-            raise HttpServerError, env.status
+            raise HttpServerError, env
           end
         end
       end

@@ -1,7 +1,7 @@
 describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
-  let(:checkpoint) { described_class.new(repository.streams[stream]) }
+  let(:checkpoint) { described_class.new(store.streams[stream]) }
   let(:stream) { gensym(:stream) }
-  let(:repository) { Akasha::Storage::HttpEventStore.new(http_es_config) }
+  let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }
 
   let(:events) do
     [
@@ -21,7 +21,7 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
 
     context 'for a non-empty stream' do
       before do
-        repository.streams[stream].write_events(events)
+        store.streams[stream].write_events(events)
       end
 
       context 'for empty checkpoint' do
@@ -38,7 +38,7 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
         it { is_expected.to eq 5 }
 
         it 'persists state' do
-          loaded = described_class.new(repository.streams[stream])
+          loaded = described_class.new(store.streams[stream])
           expect(loaded.latest).to eq 5
         end
       end
@@ -47,7 +47,7 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
 
   shared_examples 'saving checkpoints' do
     subject { checkpoint.latest }
-    let(:other_instance) { described_class.new(repository[stream], interval: interval) }
+    let(:other_instance) { described_class.new(store[stream], interval: interval) }
     let(:interval) { 1 }
 
     context 'with checkpoints after each event' do
@@ -91,7 +91,7 @@ describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
 
     context 'for a non-empty stream' do
       before do
-        repository.streams[stream].write_events(events)
+        store.streams[stream].write_events(events)
       end
 
       include_examples 'saving checkpoints'

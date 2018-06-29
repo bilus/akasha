@@ -12,7 +12,8 @@ module Akasha
         end
 
         # Appends events to the stream.
-        def write_events(events)
+        def write_events(events, revision: nil)
+          check_revision!(revision)
           @events += @before_write.call(events)
         end
 
@@ -31,6 +32,13 @@ module Akasha
 
         def identity
           ->(x) { x }
+        end
+
+        def check_revision!(revision)
+          return if revision.nil?
+          actual_version = @events.size - 1
+          return if revision == actual_version
+          raise RaceConditionError, "Race condition; expected last event version: #{revision} actual: #{actual_version}"
         end
       end
     end

@@ -19,9 +19,10 @@ module Akasha
   class Aggregate
     include SyntaxHelpers
 
-    attr_reader :changeset
+    attr_reader :changeset, :revision
 
     def initialize(id)
+      @revision = -1  # No stream exists.
       @changeset = Changeset.new(id)
     end
 
@@ -32,6 +33,7 @@ module Akasha
         method_name = event_handler(event)
         send(method_name, event.data) if respond_to?(method_name)
       end
+      @revision += events.size
     end
 
     private

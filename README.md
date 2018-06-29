@@ -48,6 +48,11 @@ This library itself makes no assumptions about any web framework, you can use it
 - [x] Namespacing for events and aggregates and the projection
 - [x] Way to control the number of retries in face of network failures
 - [ ] Version-based concurrency
+  - [ ] Use naive event count as revision
+  - [ ] Use actual event version as read from stream
+  - [ ] Reorg exceptions
+  - [ ] /s/revision/version
+- [ ] Intermittently failing rspec ./spec/akasha/async_event_router_spec.rb:34
 - [ ] Snapshots
 - [ ] Telemetry (configurable backend, default: Dogstatsd)
 - [ ] Socket-based Eventstore storage backend

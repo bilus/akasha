@@ -117,14 +117,18 @@ module Akasha
           end
         end
 
-        def append_to_stream(stream_name, events, _expected_version = nil)
+        def append_to_stream(stream_name, events, expected_version)
           @conn.post("/streams/#{stream_name}") do |req|
             req.headers = {
               'Content-Type' => 'application/vnd.eventstore.events+json',
-              # 'ES-ExpectedVersion' => expected_version
+              'ES-ExpectedVersion' => expected_version
             }
             req.body = to_event_data(events).to_json
           end
+        rescue HttpClientError => e
+          raise unless e.status_code == 400
+          actual_version = e.response_headers['ES-CurrentVersion']
+          raise Akasha::RaceConditionError, "Race condition; expected last event version: #{expected_version} actual: #{actual_version}"
         end
 
         def safe_read_events(stream_name, start, count, poll)

@@ -9,10 +9,11 @@ module Akasha
 
       # Base class for HTTP errors.
       class HttpError < Error
-        attr_reader :status_code
+        attr_reader :status_code, :response_headers
 
-        def initialize(status_code)
-          @status_code = status_code
+        def initialize(env)
+          @status_code = env.status.to_i
+          @response_headers = env.response_headers
           super("Unexpected HTTP response: #{@status_code}")
         end
       end

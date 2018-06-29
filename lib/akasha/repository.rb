@@ -30,10 +30,11 @@ module Akasha
     end
 
     # Saves an aggregate to the repository, appending events to the corresponding stream.
-    def save_aggregate(aggregate)
+    def save_aggregate(aggregate, concurrency: :none)
       changeset = aggregate.changeset
       events = changeset.events.map { |event| event.with_metadata(namespace: @namespace) }
-      stream(aggregate.class, changeset.aggregate_id).write_events(events)
+      revision = aggregate.revision if concurrency == :optimistic
+      stream(aggregate.class, changeset.aggregate_id).write_events(events, revision: revision)
       notify_subscribers(changeset.aggregate_id, events)
     end
 
