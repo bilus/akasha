@@ -1,5 +1,5 @@
 describe Akasha::CommandRouter do
-  let(:router) { described_class.new }
+  let(:router) { described_class.new(routes) }
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
 
   before do
@@ -22,22 +22,32 @@ describe Akasha::CommandRouter do
     subject { router.route!(:change_item_name, 'item-1', new_name: 'new name') }
 
     context 'without valid target' do
+      let(:routes) { {} }
+
       it 'raises error' do
         expect { subject }.to raise_error Akasha::CommandRouter::NotFoundError
       end
     end
 
     context 'with valid default target' do
-      before do
-        router.register_default_route(:change_item_name, Item)
+      let(:routes) do
+        {
+          change_item_name: Item
+        }
       end
 
       include_examples 'routes registered command'
     end
 
-    context 'with valid custom target' do
-      before do
-        router.register_route(:change_item_name) do |_command, aggregate_id, _options, **data|
+    context 'with valid custom handler' do
+      let(:routes) do
+        {
+          change_item_name: handler
+        }
+      end
+
+      let(:handler) do
+        lambda do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!
