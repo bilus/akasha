@@ -22,7 +22,7 @@ module Akasha
     attr_reader :changeset, :revision
 
     def initialize(id)
-      @revision = -1  # No stream exists.
+      @revision = -1 # No stream exists.
       @changeset = Changeset.new(id)
     end
 
