@@ -31,9 +31,9 @@ module Akasha
     def apply_events(events)
       events.each do |event|
         method_name = event_handler(event)
-        send(method_name, event.data) if respond_to?(method_name)
+        public_send(method_name, event.data) if respond_to?(method_name)
       end
-      @revision += events.size
+      @revision = events.last&.revision.to_i
     end
 
     private

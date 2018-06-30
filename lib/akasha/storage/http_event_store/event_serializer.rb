@@ -24,7 +24,10 @@ module Akasha
           es_events.map do |ev|
             metadata = ev['metaData']&.symbolize_keys || {}
             data = ev['data']&.symbolize_keys || {}
-            event = Akasha::Event.new(ev['eventType'].to_sym, ev['eventId'], metadata, **data)
+            revision = ev['eventNumber']
+            updated_at = Time.parse(ev['updated']) if ev.key?('updated')
+            event = Akasha::RecordedEvent.new(ev['eventType'].to_sym, ev['eventId'], revision, updated_at,
+                                              metadata, **data)
             event
           end
         end

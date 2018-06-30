@@ -28,8 +28,8 @@ module Akasha
     #   - command - name of the command
     #   - aggregate_id - aggregate id
     #   - options - flags:
-    #     - transactor -- transactor instance to replace the default one
-    #     - TODO
+    #     - transactor - transactor instance to replace the default one (`OptimisticTransactor`);
+    #       see docs for `OptimisticTransactor` for a list of additional supported options.
     def route!(command, aggregate_id, options = {}, **data)
       handler = @routes[command]
       case handler

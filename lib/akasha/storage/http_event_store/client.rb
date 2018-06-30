@@ -34,9 +34,9 @@ module Akasha
         end
 
         # Append events to stream, idempotently retrying_on_network_failures up to `max_retries`
-        def retry_append_to_stream(stream_name, events, expected_version = nil, max_retries: 0)
+        def retry_append_to_stream(stream_name, events, expected_revision = nil, max_retries: 0)
           retrying_on_network_failures(max_retries) do
-            append_to_stream(stream_name, events, expected_version)
+            append_to_stream(stream_name, events, expected_revision)
           end
         end
 
@@ -111,11 +111,11 @@ module Akasha
           end
         end
 
-        def append_to_stream(stream_name, events, expected_version)
+        def append_to_stream(stream_name, events, expected_revision)
           @conn.post("/streams/#{stream_name}") do |req|
             req.headers = {
               'Content-Type' => 'application/vnd.eventstore.events+json',
-              'ES-ExpectedVersion' => expected_version
+              'ES-ExpectedVersion' => expected_revision
             }
             req.body = to_event_data(events).to_json
           end
@@ -123,7 +123,7 @@ module Akasha
           raise unless e.status_code == 400
           actual_version = e.response_headers['ES-CurrentVersion']
           raise Akasha::RaceConditionError,
-                "Race condition; expected last event version: #{expected_version} actual: #{actual_version}"
+                "Race condition; expected last event version: #{expected_revision} actual: #{actual_version}"
         end
 
         def safe_read_events(stream_name, start, count, poll)

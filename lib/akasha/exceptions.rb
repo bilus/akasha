@@ -18,7 +18,7 @@ module Akasha
   # Base exception class for concurrency-related errors.
   ConcurrencyError = Class.new(Error)
 
-  # Stale aggregate version number passed with command.
+  # Stale aggregate revision number passed with command.
   ConflictError = Class.new(ConcurrencyError)
 
   # Stream modified while processing a command.

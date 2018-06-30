@@ -6,6 +6,15 @@ module Akasha
     # and saving changes to the aggregate in the end.
     class OptimisticTransactor
       # Process a command with a specific aggregate_klass.
+      # - `aggregate_klass` - aggregate class you want to handle the command,
+      # - `command` - command the aggregate will process, corresponding to a method of the aggregate class.
+      # - `aggregate_id` - id of the aggregate instance the command is for,
+      # - `options`:
+      #     - concurrency - `:optimistic` or `:none` (default: `:optimistic`);
+      #     - revision - set to aggregate revision to detect conflicts while saving
+      #       aggregates (requires `concurrency == :optimistic`); `nil` to just save
+      #       without concurrency control.
+      # - `data`- command payload.
       def call(aggregate_klass, command, aggregate_id, options, **data)
         concurrency, revision = parse_options!(options)
         aggregate = aggregate_klass.find_or_create(aggregate_id)

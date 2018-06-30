@@ -19,7 +19,7 @@ module Akasha
         # You can specify `revision` to use optimistic concurrency control:
         #    - nil  - just append, no concurrency control,
         #    - -1   - the stream doesn't exist,
-        #    - >= 0 - expected version of the last event in stream.
+        #    - >= 0 - expected revision of the last event in stream.
         def write_events(events, revision: nil)
           return if events.empty?
           expected_version = revision.nil? ? -2 : revision
