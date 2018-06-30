@@ -5,9 +5,6 @@ module Akasha
     # invoking its method `command`, passing all data,
     # and saving changes to the aggregate in the end.
     class OptimisticTransactor
-      ConcurrencyError = Class.new(RuntimeError)
-      ConflictError = Class.new(ConcurrencyError)
-
       # Process a command with a specific aggregate_klass.
       def call(aggregate_klass, command, aggregate_id, options, **data)
         concurrency, revision = parse_options!(options)

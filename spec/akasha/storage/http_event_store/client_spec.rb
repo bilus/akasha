@@ -60,7 +60,7 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
 
     it 'raises exception if stream name is invalid' do
       expect { subject.retry_read_events_forward('@#$@#$', 0, 999) }
-        .to raise_error Akasha::Storage::HttpEventStore::InvalidStreamNameError
+        .to raise_error Akasha::InvalidStreamNameError
     end
 
     it 'can read events page by page' do

@@ -25,7 +25,7 @@ describe Akasha::CommandRouter do
       let(:routes) { {} }
 
       it 'raises error' do
-        expect { subject }.to raise_error Akasha::CommandRouter::HandlerNotFoundError
+        expect { subject }.to raise_error Akasha::HandlerNotFoundError
       end
     end
 

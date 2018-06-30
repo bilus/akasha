@@ -2,9 +2,6 @@ module Akasha
   module Checkpoint
     # Stores stream position via HTTP Eventstore API.
     class HttpEventStoreCheckpoint
-      Error = Class.new(RuntimeError)
-      StreamNotFoundError = Class.new(Error)
-
       # Creates a new checkpoint, storing position in `stream` every `interval` events.
       # Use `interval` greater than zero for idempotent event listeners.
       def initialize(stream, interval: 1)
@@ -31,7 +28,7 @@ module Akasha
         @next_position
       rescue Akasha::Storage::HttpEventStore::HttpClientError => e
         raise if e.status_code != 404
-        raise StreamNotFoundError, "Stream cannot be checkpointed; it does not exist: #{@stream.name}"
+        raise CheckpointStreamNotFoundError, "Stream cannot be checkpointed; it does not exist: #{@stream.name}"
       end
 
       protected

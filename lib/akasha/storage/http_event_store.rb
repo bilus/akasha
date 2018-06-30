@@ -1,6 +1,5 @@
 require_relative 'http_event_store/client'
 require_relative 'http_event_store/stream'
-require_relative 'http_event_store/exceptions'
 
 module Akasha
   module Storage

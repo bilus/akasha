@@ -6,10 +6,6 @@ module Akasha
   class CommandRouter
     using Corefines::Hash
 
-    # Raised when no corresponding target can be found for a command.
-    HandlerNotFoundError = Class.new(RuntimeError)
-    UnsupportedHandlerError = Class.new(RuntimeError)
-
     def initialize(**routes)
       @routes = routes
     end

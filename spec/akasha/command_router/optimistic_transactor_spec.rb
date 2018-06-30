@@ -24,7 +24,7 @@ describe Akasha::CommandRouter::OptimisticTransactor do
       let(:revision) { 100 }
 
       it 'with conflict' do
-        expect { subject }.to raise_error described_class::ConflictError
+        expect { subject }.to raise_error Akasha::ConflictError
       end
     end
 
