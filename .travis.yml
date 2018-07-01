@@ -15,8 +15,8 @@ before_install:
 matrix:
   include:
   - rvm: 2.3.6
-  - rvm: 2.5.1
-  - env: INTEGRATION_TESTS=true
+  # - rvm: 2.5.1
+  # - env: INTEGRATION_TESTS=true
 
 script:
 - |
