@@ -14,7 +14,7 @@ namespace 'ci' do
     `git push --tags`
   end
 
-  task 'release' => ['build', 'release:guard_clean', 'release:rubygem_push', 'ci:tag'] do
+  task 'release' => ['build', 'release:rubygem_push', 'ci:tag'] do
   end
 end
 
