@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   # rubocop:disable Gemspec/DuplicatedAssignment
   spec.version       = Akasha::VERSION
   spec.version       = "#{spec.version}.#{ENV['TRAVIS_BUILD_NUMBER']}" \
-    if ENV['TRAVIS'] && spec.version.include('.pre')
+    if ENV['TRAVIS'] && Akasha::VERSION.include?('.pre')
   # rubocop:enable Gemspec/DuplicatedAssignment
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
