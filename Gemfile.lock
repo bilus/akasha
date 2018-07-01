@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    akasha (0.4.0)
+    akasha (0.4.0.pre.edge.pre.)
       corefines (~> 1.11)
       faraday (~> 0.15)
       faraday_middleware

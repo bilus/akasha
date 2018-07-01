@@ -5,8 +5,10 @@ require 'akasha/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'akasha'
+  # rubocop:disable Gemspec/DuplicatedAssignment
   spec.version       = Akasha::VERSION
-  spec.version       = "#{spec.version}-edge-#{ENV['TRAVIS_BUILD_NUMBER']}" if ENV['TRAVIS']
+  spec.version       = "#{spec.version}-edge-#{ENV['TRAVIS_BUILD_NUMBER']}"
+  # rubocop:enable Gemspec/DuplicatedAssignment
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
 
