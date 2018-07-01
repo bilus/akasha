@@ -13,9 +13,6 @@ namespace 'ci' do
     `git tag #{version_tag}`
     `git push --tags`
   end
-
-  task 'release' => ['build', 'release:rubygem_push', 'ci:tag'] do
-  end
 end
 
 RuboCop::RakeTask.new(:rubocop) do |task|

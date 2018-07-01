@@ -31,7 +31,8 @@ notifications:
   disabled: true
 
 deploy:
-  provider: script
+  provider: rubygems
   api_key:
     secure: EGspR+X6oNBQMMZO3QRXT6RW5tglTj3X9/9HiPJQDCnAnBCWxrxBdvrlhf4sMSrcfuxXt7mGeXaoD/sOrHS7BOmVE6SrJJhJgph8Uv3EnfEE4V8LswjGXRfzf+6g6PxGAR2pcaYdGfyQVb0wLvAFArjs7aBg+8+fisP+ffwi6ahPd2YzUNb0Oh4J0rvmqGt6KCXR9z/4OKzNyweHmXLM+PfZr5uRs8NT70tx+n8zo5YrgCk5t8odQTchsKWGkFF8dzP3mzjQTt3d0MW0rkykgjd+rFCVmLA1L4aErkLAQxNM8YogsrS7hptwTF390vhL0yTyRQpY8fQU+U8igwtP3XcoXw5cngdZDR3vFUo7RgxJiIVESPRGJ8uTkxMzX7rkyDNAcLj82cT2etouKgAxK9G5/nvC6IEVF6x3AkH93gruNZEHj2BRXKYIhL3o6u6CeUuA9KM3jQI5FeAKzQ19yf8wk+wu/I3pK83evMtSQ07cDHOgzdHjZjoUOBZlshrKSkkByBS+ueJmZRg2flTtGkxpy0hzgHjQ12HFOPYrTKEICMgGKhAohUQoUji/+iHAzaRZygfqJKLXJKPAR0JGumvEqCuZfcvL+T+Cg4R2RZLbdvF9YN42aVvSJNTS6/lA5J0+1cm+9XCZFYX0NR9CD85wfzU9zBHh0obYt61zgvI=
-  script: bundle install && rake ci:release
+  after_deploy:
+    - rake install && rake ci:tag
