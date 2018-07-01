@@ -38,7 +38,7 @@ module Akasha
           return if expected_revision.nil?
           actual_revision = @events.size - 1
           return if expected_revision == actual_revision
-          raise RaceConditionError,
+          raise ConflictError,
                 "Race condition; expected last event version: #{expected_revision} actual: #{actual_revision}"
         end
 

@@ -36,7 +36,7 @@ module Akasha
 
       def check_conflict!(aggregate, revision)
         return if revision.nil? || revision == aggregate.revision
-        raise ConflictError, "Conflict detected; expected: #{revision} got: #{aggregate.revision}"
+        raise StaleRevisionError, "Conflict detected; expected: #{revision} got: #{aggregate.revision}"
       end
     end
   end

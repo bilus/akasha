@@ -65,7 +65,7 @@ describe Akasha::Repository do
         # Save our changes.
         item.name = 'new name' # Generate an event.
         expect { subject.save_aggregate(item, concurrency: :optimistic) }
-          .to raise_error Akasha::RaceConditionError
+          .to raise_error Akasha::ConflictError
       end
     end
   end

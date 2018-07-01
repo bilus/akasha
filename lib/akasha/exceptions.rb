@@ -19,10 +19,12 @@ module Akasha
   ConcurrencyError = Class.new(Error)
 
   # Stale aggregate revision number passed with command.
-  ConflictError = Class.new(ConcurrencyError)
+  # It typically means that another actor already updated the
+  # aggregate.
+  StaleRevisionError = Class.new(ConcurrencyError)
 
   # Stream modified while processing a command.
-  RaceConditionError = Class.new(ConcurrencyError)
+  ConflictError = Class.new(ConcurrencyError)
 
   # Missing stream when saving checkpoint.
   CheckpointStreamNotFoundError = Class.new(Error)

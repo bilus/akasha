@@ -24,7 +24,7 @@ describe Akasha::CommandRouter::OptimisticTransactor do
       let(:revision) { 100 }
 
       it 'with conflict' do
-        expect { subject }.to raise_error Akasha::ConflictError
+        expect { subject }.to raise_error Akasha::StaleRevisionError
       end
     end
 
@@ -49,7 +49,7 @@ describe Akasha::CommandRouter::OptimisticTransactor do
         end
 
         it 'detects race condition' do
-          expect { subject }.to raise_error Akasha::RaceConditionError
+          expect { subject }.to raise_error Akasha::ConflictError
         end
       end
     end

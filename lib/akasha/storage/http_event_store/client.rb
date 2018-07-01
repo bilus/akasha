@@ -122,7 +122,7 @@ module Akasha
         rescue HttpClientError => e
           raise unless e.status_code == 400
           actual_version = e.response_headers['ES-CurrentVersion']
-          raise Akasha::RaceConditionError,
+          raise Akasha::ConflictError,
                 "Race condition; expected last event version: #{expected_revision} actual: #{actual_version}"
         end
 

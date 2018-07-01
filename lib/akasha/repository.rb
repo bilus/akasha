@@ -8,6 +8,8 @@ module Akasha
     STREAM_NAME_SEP = '-'.freeze
 
     # Creates a new repository using the underlying `store` (e.g. `MemoryEventStore`).
+    # - namespace - optional namespace allowing for multiple applications to share the same Eventstore
+    #               database without name conflicts
     def initialize(store, namespace: nil)
       @store = store
       @subscribers = []
