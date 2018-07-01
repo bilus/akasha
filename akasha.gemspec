@@ -5,7 +5,11 @@ require 'akasha/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'akasha'
+  # rubocop:disable Gemspec/DuplicatedAssignment
   spec.version       = Akasha::VERSION
+  spec.version       = "#{spec.version}.#{ENV['TRAVIS_BUILD_NUMBER']}" \
+    if ENV['TRAVIS'] && Akasha::VERSION.include?('.pre')
+  # rubocop:enable Gemspec/DuplicatedAssignment
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
 
@@ -38,3 +42,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.50'
   spec.add_development_dependency 'timecop', '~> 0.9'
 end
+# rubocop:enable Style/ExpandPathArguments
