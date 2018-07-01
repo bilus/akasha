@@ -2,7 +2,9 @@
 
 ## Version 0.4.0.pre
 
-* Support for optimistic concurrency for commands. [#17](https://github.com/bilus/akasha/pull/17)
+* Support for optimistic concurrency for commands. Enabled by default, will raise `ConflictError` if the aggregate
+  handling a command is modified by another process. Will internally retry the command up to 2 times before giving up.
+  See `OptimisticTransactor` for a list of available options you can pass to `CommandRouter#route!`. [#17](https://github.com/bilus/akasha/pull/17)
 
 * Control the maximum number of retries in case of network related failures. [#14](https://github.com/bilus/akasha/pull/14)
 

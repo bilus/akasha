@@ -63,9 +63,11 @@ describe Akasha::Aggregate do
     context 'given events without corresponding on_xx handlers' do
       let(:events) do
         [
-          Akasha::RecordedEvent.new(:name_changed, id1, 0, updated_at, {}, old_name: nil, new_name: 'new name'),
+          Akasha::RecordedEvent.new(:name_changed, id1, 0, updated_at, {},
+                                    old_name: nil, new_name: 'new name'),
           Akasha::RecordedEvent.new(:unexpected_happened, id2, 1, updated_at, {}),
-          Akasha::RecordedEvent.new(:name_changed, id3, 2, updated_at, {}, old_name: 'new_name', new_name: 'newest name')
+          Akasha::RecordedEvent.new(:name_changed, id3, 2, updated_at, {},
+                                    old_name: 'new_name', new_name: 'newest name')
         ]
       end
 

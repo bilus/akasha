@@ -56,16 +56,6 @@ describe Akasha::CommandRouter::OptimisticTransactor do
   end
 
   shared_examples 'optional concurrency support' do
-    subject do
-      transactor.call(Item,
-                      :change_item_name,
-                      'item-1',
-                      {
-                        concurrency: concurrency, revision: revision
-                      },
-                      new_name: 'new name')
-    end
-
     context 'given default concurrency' do
       let(:concurrency) { nil }
 
@@ -91,19 +81,58 @@ describe Akasha::CommandRouter::OptimisticTransactor do
     end
   end
 
+  shared_examples 'retries in case of conflicts' do
+    context 'with optimistic concurrency and 2 retries' do
+      let(:concurrency) { :optimistic }
+      let(:revision) { nil }
+      let(:retries) { 2 }
+      let(:item) { double(:item, change_item_name: nil) }
+
+      before do
+        # Mocking `new` because of the limitations of `expect_any_instance_of.`
+        allow(Item).to receive(:new).and_return(item)
+      end
+
+      it 'retries until conflict resolved' do
+        expect(item).to receive(:save!).exactly(3).times.and_raise Akasha::ConflictError
+        expect { subject }.to raise_error Akasha::ConflictError
+      end
+
+      it 'retries until max retries reached' do
+        expect(item).to receive(:save!).ordered.twice.and_raise Akasha::ConflictError
+        expect(item).to receive(:save!).ordered.once
+        expect { subject }.to_not raise_error
+      end
+    end
+  end
+
   describe '#call' do
+    subject do
+      transactor.call(Item,
+                      :change_item_name,
+                      'item-1',
+                      {
+                        concurrency: concurrency,
+                        revision: revision,
+                        max_conflict_retries: retries
+                      },
+                      new_name: 'new name')
+    end
+    let(:retries) { 0 }
     let(:repo) { Akasha::Repository.new(store, namespace: gensym(:namespace)) }
 
     context 'memory-based event store' do
       let(:store) { Akasha::Storage::MemoryEventStore.new }
 
       include_examples 'optional concurrency support'
+      include_examples 'retries in case of conflicts'
     end
 
     context 'HTTP-backed event store', integration: true do
       let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }
 
       include_examples 'optional concurrency support'
+      include_examples 'retries in case of conflicts'
     end
   end
 end

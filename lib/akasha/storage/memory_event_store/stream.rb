@@ -44,7 +44,7 @@ module Akasha
 
         def to_recorded_events(current_revision, events)
           events.each_with_index.map do |event, i|
-            updated_at = Time.now # Cheating.
+            updated_at = Time.now.utc # Cheating.
             RecordedEvent.new(event.name, event.id, current_revision + i,
                               updated_at, event.metadata, **event.data)
           end
