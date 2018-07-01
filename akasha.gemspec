@@ -6,6 +6,7 @@ require 'akasha/version'
 Gem::Specification.new do |spec|
   spec.name          = 'akasha'
   spec.version       = Akasha::VERSION
+  spec.version       = "#{s.version}-edge-#{ENV['TRAVIS_BUILD_NUMBER']}" if ENV['TRAVIS']
   spec.authors       = ['Marcin Bilski']
   spec.email         = ['marcin@tooploox.com']
 
