@@ -38,3 +38,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.50'
   spec.add_development_dependency 'timecop', '~> 0.9'
 end
+# rubocop:enable Style/ExpandPathArguments
