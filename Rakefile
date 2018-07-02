@@ -12,8 +12,6 @@ namespace 'ci' do
     return if `git tag`.split(/\n/).include?(version_tag)
     puts "Tagging with tag #{version_tag}"
     `git tag #{version_tag}`
-    puts 'Pushing tag to remote repository'
-    `git push --tags`
   end
 end
 
