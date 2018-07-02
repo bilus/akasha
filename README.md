@@ -99,6 +99,10 @@ rspec
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/bilus/akasha.
 
+1. Create a new PR, setting version in `lib/akasha/version.rb` to a prerelease version,
+   example: `"0.4.0.pre"`.
+1. Update CHANGELOG.
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
