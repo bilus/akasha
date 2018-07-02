@@ -11,3 +11,6 @@ bundle install
 rake ci:tag
 git remote add github git@github.com:${TRAVIS_REPO_SLUG}.git
 git push github --tags
+
+# Prevent error after deploy.
+git stash --all
