@@ -31,11 +31,11 @@ module Akasha
         # If block not given, reads `size` events from the position.
         # You can also turn on long-polling using `poll` and setting it to the number
         # of seconds to wait for.
-        def read_events(start, page_size, poll = 0)
+        def read_events(start, page_size, poll: 0)
           if block_given?
             position = start
             loop do
-              events = read_events(position, page_size, poll)
+              events = read_events(position, page_size, poll: poll)
               return if events.empty?
               yield(events)
               position += events.size

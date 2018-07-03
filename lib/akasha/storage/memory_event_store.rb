@@ -10,11 +10,19 @@ module Akasha
       attr_reader :streams
 
       def initialize
+        @monitor = Monitor.new
         store = self
         @streams = Hash.new do |streams, name|
-          streams[name] = Stream.new do |new_events|
-            store.update_projections(new_events)
-            new_events
+          @monitor.synchronize do
+            # Double-checked-locking.
+            if streams.key?(name)
+              streams[name]
+            else
+              streams[name] = Stream.new do |new_events|
+                store.update_projections(new_events)
+                new_events
+              end
+            end
           end
         end
         @projections = []
@@ -35,8 +43,10 @@ module Akasha
               only.include?(event.name)
           end
         end
-        @streams[into] = new_stream
-        @projections << new_stream
+        @monitor.synchronize do
+          @streams[into] = new_stream
+          @projections << new_stream
+        end
         new_stream
       end
 

@@ -20,6 +20,8 @@
 
 * Fixed issue for passsing Handlers to EventRouter via constructor, when they are not wrapped in array. [#15](https://github.com/bilus/akasha/pull/15)
 
+* Make `AsyncEventRouter` compatible with `MemoryEventStore`.
+
 
 ## Version 0.3.0
 
@@ -30,6 +32,7 @@
 * Remove dependency on the `http_event_store` gem.
 
 * `Event#metadata` is no longer OpenStruct. [#10](https://github.com/bilus/akasha/pull/10)
+
 
 ## Version 0.2.0
 

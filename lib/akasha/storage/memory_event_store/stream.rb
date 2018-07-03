@@ -9,22 +9,40 @@ module Akasha
         def initialize(&before_write)
           @before_write = before_write || identity
           @events = []
+          @metadata = {}
+          @monitor = Monitor.new
         end
 
         # Appends events to the stream.
         def write_events(events, revision: nil)
-          check_revision!(revision)
-          @events += to_recorded_events(@events.size, @before_write.call(events))
+          @monitor.synchronize do
+            check_revision!(revision)
+            @events += to_recorded_events(@events.size, @before_write.call(events))
+          end
         end
 
         # Reads events from the stream starting from `start` inclusive.
         # If block given, reads all events from the start in pages of `page_size`.
         # If block not given, reads `page_size` events from the start.
-        def read_events(start, page_size, &block)
-          if block_given?
-            @events.lazy.drop(start).each_slice(page_size, &block)
-          else
-            @events[start..start + page_size]
+        def read_events(start, page_size, **_options, &block)
+          @monitor.synchronize do
+            if block_given?
+              @events.drop(start).each_slice(page_size, &block)
+            else
+              @events[start..start + page_size]
+            end
+          end
+        end
+
+        def metadata
+          @monitor.synchronize do
+            @metadata
+          end
+        end
+
+        def metadata=(metadata)
+          @monitor.synchronize do
+            @metadata = metadata
           end
         end
 

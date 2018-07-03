@@ -31,13 +31,13 @@ describe Akasha::Storage::HttpEventStore, integration: true do
 
       it 'creates stream containing events with matching names' do
         wait(10).for do
-          subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name).uniq
+          subject.streams[projection_name].read_events(0, 999, poll: poll_seconds).map(&:name).uniq
         end.to match_array(%i[world_created world_ended])
       end
 
       it 'accepts events regardless of their namespace' do
         wait(10).for do
-          subject.streams[projection_name].read_events(0, 999, poll_seconds).size
+          subject.streams[projection_name].read_events(0, 999, poll: poll_seconds).size
         end.to be >= 4 # Because other tests will create events as well.
       end
     end
@@ -51,19 +51,19 @@ describe Akasha::Storage::HttpEventStore, integration: true do
 
       it 'optionally accepts event only from the specified namespace' do
         wait(10).for do
-          subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name)
+          subject.streams[projection_name].read_events(0, 999, poll: poll_seconds).map(&:name)
         end.to match_array(%i[world_created world_ended])
       end
     end
 
     it 'supports changing the list of names' do
       subject.merge_all_by_event(into: projection_name, only: %i[world_created world_ended], namespace: our_universe)
-      subject.streams[projection_name].read_events(0, 999, poll_seconds)
+      subject.streams[projection_name].read_events(0, 999, poll: poll_seconds)
       subject.merge_all_by_event(into: projection_name, only: [:world_created], namespace: our_universe)
       subject.streams[stream_name].write_events(events)
 
       wait(10).for do
-        subject.streams[projection_name].read_events(0, 999, poll_seconds).map(&:name).uniq
+        subject.streams[projection_name].read_events(0, 999, poll: poll_seconds).map(&:name).uniq
       end.to match_array([:world_created])
     end
   end

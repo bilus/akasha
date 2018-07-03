@@ -23,7 +23,6 @@ module Akasha
 
         private
 
-        # rubocop:disable Metrics/MethodLength
         def projection_javascript(name, events, namespace)
           callback_fmt = if namespace.nil?
                            <<~JS
@@ -59,7 +58,6 @@ module Akasha
             });
           JS
         end
-        # rubocop:enable Metrics/MethodLength
 
         def attempt_create_projection(name, event_names, namespace)
           create_options = {
