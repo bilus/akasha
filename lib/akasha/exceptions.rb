@@ -13,6 +13,14 @@ module Akasha
   # Type of the handler found for a command is not supported.
   UnsupportedHandlerError = Class.new(CommandRoutingError)
 
+  ## Event routing errors
+
+  # Base exception class for errors related to routing events.
+  EventRoutingError = Class.new(Error)
+
+  # Projection stream hasn't been set up yet.
+  MissingProjectionError = Class.new(EventRoutingError)
+
   ## Concurrency errors
 
   # Base exception class for concurrency-related errors.
@@ -29,7 +37,7 @@ module Akasha
   # Missing stream when saving checkpoint.
   CheckpointStreamNotFoundError = Class.new(Error)
 
-  ## Storega errors
+  ## Storage errors
 
   # Base class for all storage backend errors.
   StorageError = Class.new(Error)

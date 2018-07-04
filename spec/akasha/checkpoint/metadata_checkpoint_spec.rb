@@ -1,4 +1,4 @@
-describe Akasha::Checkpoint::HttpEventStoreCheckpoint, integration: true do
+describe Akasha::Checkpoint::MetadataCheckpoint, integration: true do
   let(:checkpoint) { described_class.new(store.streams[stream]) }
   let(:stream) { gensym(:stream) }
   let(:store) { Akasha::Storage::HttpEventStore.new(http_es_config) }

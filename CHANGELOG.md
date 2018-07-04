@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.4.0.pre
+## Version 0.4.0
 
 * Support for optimistic concurrency for commands. Enabled by default, will raise `ConflictError` if the aggregate
   handling a command is modified by another process. Will internally retry the command up to 2 times before giving up.
@@ -20,6 +20,8 @@
 
 * Fixed issue for passsing Handlers to EventRouter via constructor, when they are not wrapped in array. [#15](https://github.com/bilus/akasha/pull/15)
 
+* Make `AsyncEventRouter` compatible with `MemoryEventStore`. [#18](https://github.com/bilus/akasha/pull/18)
+
 
 ## Version 0.3.0
 
@@ -30,6 +32,7 @@
 * Remove dependency on the `http_event_store` gem.
 
 * `Event#metadata` is no longer OpenStruct. [#10](https://github.com/bilus/akasha/pull/10)
+
 
 ## Version 0.2.0
 
