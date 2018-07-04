@@ -69,23 +69,23 @@ describe Akasha::Storage::MemoryEventStore::Stream do
 
       it 'reads all events from start' do
         expected_pages = [
-          [events[0]],
-          [events[1]]
+          [events[0].id],
+          [events[1].id]
         ]
         actual_pages = []
         subject.read_events(0, 1) do |events|
-          actual_pages << events
+          actual_pages << events.map(&:id)
         end
         expect(actual_pages).to eq(expected_pages)
       end
 
       it 'reads all events from any position' do
         expected_pages = [
-          [events[1]]
+          [events[1].id]
         ]
         actual_pages = []
         subject.read_events(1, 1) do |events|
-          actual_pages << events
+          actual_pages << events.map(&:id)
         end
         expect(actual_pages).to eq(expected_pages)
       end

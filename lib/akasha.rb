@@ -1,4 +1,6 @@
+require 'akasha/exceptions'
 require 'akasha/event'
+require 'akasha/recorded_event'
 require 'akasha/aggregate'
 require 'akasha/command_router'
 require 'akasha/event_listener'

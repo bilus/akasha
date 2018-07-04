@@ -45,10 +45,15 @@ describe Akasha::Aggregate do
   describe '#apply_events' do
     let(:events) do
       [
-        Akasha::Event.new(:name_changed, old_name: nil, new_name: 'new name'),
-        Akasha::Event.new(:name_changed, old_name: 'new_name', new_name: 'newest name')
+        Akasha::RecordedEvent.new(:name_changed, id1, 0, updated_at, {}, old_name: nil, new_name: 'new name'),
+        Akasha::RecordedEvent.new(:name_changed, id2, 1, updated_at, {}, old_name: 'new_name', new_name: 'newest name')
       ]
     end
+
+    let(:id1) { 'id1' }
+    let(:id2) { 'id2' }
+    let(:id3) { 'id3' }
+    let(:updated_at) { Time.now.utc }
 
     it 'should invoke event handlers for each event' do
       item.apply_events(events)
@@ -58,9 +63,11 @@ describe Akasha::Aggregate do
     context 'given events without corresponding on_xx handlers' do
       let(:events) do
         [
-          Akasha::Event.new(:name_changed, old_name: nil, new_name: 'new name'),
-          Akasha::Event.new(:unexpected_happened),
-          Akasha::Event.new(:name_changed, old_name: 'new_name', new_name: 'newest name')
+          Akasha::RecordedEvent.new(:name_changed, id1, 0, updated_at, {},
+                                    old_name: nil, new_name: 'new name'),
+          Akasha::RecordedEvent.new(:unexpected_happened, id2, 1, updated_at, {}),
+          Akasha::RecordedEvent.new(:name_changed, id3, 2, updated_at, {},
+                                    old_name: 'new_name', new_name: 'newest name')
         ]
       end
 
@@ -71,6 +78,11 @@ describe Akasha::Aggregate do
       it 'applies all recognized events' do
         item.apply_events(events)
         expect(item.name).to eq 'newest name'
+      end
+
+      it 'sets revision to that of the last event' do
+        item.apply_events(events)
+        expect(item.revision).to eq 2
       end
     end
   end

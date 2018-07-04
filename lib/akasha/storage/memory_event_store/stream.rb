@@ -12,8 +12,9 @@ module Akasha
         end
 
         # Appends events to the stream.
-        def write_events(events)
-          @events += @before_write.call(events)
+        def write_events(events, revision: nil)
+          check_revision!(revision)
+          @events += to_recorded_events(@events.size, @before_write.call(events))
         end
 
         # Reads events from the stream starting from `start` inclusive.
@@ -31,6 +32,22 @@ module Akasha
 
         def identity
           ->(x) { x }
+        end
+
+        def check_revision!(expected_revision)
+          return if expected_revision.nil?
+          actual_revision = @events.size - 1
+          return if expected_revision == actual_revision
+          raise ConflictError,
+                "Race condition; expected last event version: #{expected_revision} actual: #{actual_revision}"
+        end
+
+        def to_recorded_events(current_revision, events)
+          events.each_with_index.map do |event, i|
+            updated_at = Time.now.utc # Cheating.
+            RecordedEvent.new(event.name, event.id, current_revision + i,
+                              updated_at, event.metadata, **event.data)
+          end
         end
       end
     end

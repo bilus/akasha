@@ -1,5 +1,5 @@
 describe Akasha::CommandRouter do
-  let(:router) { described_class.new }
+  let(:router) { described_class.new(routes) }
   let(:repo) { Akasha::Repository.new(Akasha::Storage::MemoryEventStore.new) }
 
   before do
@@ -12,7 +12,7 @@ describe Akasha::CommandRouter do
     end
 
     it 'persists changes to the aggregate' do
-      router.route!(:change_item_name, 'item-1', new_name: 'new name')
+      router.route!(:change_item_name, 'item-1', {}, new_name: 'new name')
       item = Item.find_or_create('item-1')
       expect(item.name).to eq 'new name'
     end
@@ -22,22 +22,32 @@ describe Akasha::CommandRouter do
     subject { router.route!(:change_item_name, 'item-1', new_name: 'new name') }
 
     context 'without valid target' do
+      let(:routes) { {} }
+
       it 'raises error' do
-        expect { subject }.to raise_error Akasha::CommandRouter::NotFoundError
+        expect { subject }.to raise_error Akasha::HandlerNotFoundError
       end
     end
 
     context 'with valid default target' do
-      before do
-        router.register_default_route(:change_item_name, Item)
+      let(:routes) do
+        {
+          change_item_name: Item
+        }
       end
 
       include_examples 'routes registered command'
     end
 
-    context 'with valid custom target' do
-      before do
-        router.register_route(:change_item_name) do |_command, aggregate_id, **data|
+    context 'with valid custom handler' do
+      let(:routes) do
+        {
+          change_item_name: lambda_handler
+        }
+      end
+
+      let(:lambda_handler) do
+        lambda do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!
@@ -55,11 +65,47 @@ describe Akasha::CommandRouter do
 
     context 'with valid custom target registered via constructor' do
       let(:router) do
-        described_class.new(change_item_name: lambda do |_command, aggregate_id, **data|
+        described_class.new(change_item_name: lambda do |_command, aggregate_id, _options, **data|
           item = Item.find_or_create(aggregate_id)
           item.name = data[:new_name]
           item.save!
         end)
+      end
+
+      include_examples 'routes registered command'
+    end
+  end
+
+  describe '#register' do
+    let(:routes) { {} }
+
+    let(:lambda_handler) do
+      lambda do |_command, aggregate_id, _options, **data|
+        item = Item.find_or_create(aggregate_id)
+        item.name = data[:new_name]
+        item.save!
+      end
+    end
+
+    context 'called with aggregate class' do
+      before do
+        router.register(:change_item_name, Item)
+      end
+
+      include_examples 'routes registered command'
+    end
+
+    context 'called with lambda' do
+      before do
+        router.register(:change_item_name, lambda_handler)
+      end
+
+      include_examples 'routes registered command'
+    end
+
+    context 'called with block' do
+      before do
+        router.register(:change_item_name, &lambda_handler)
       end
 
       include_examples 'routes registered command'

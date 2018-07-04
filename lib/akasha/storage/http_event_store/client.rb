@@ -34,9 +34,9 @@ module Akasha
         end
 
         # Append events to stream, idempotently retrying_on_network_failures up to `max_retries`
-        def retry_append_to_stream(stream_name, events, expected_version = nil, max_retries: 0)
+        def retry_append_to_stream(stream_name, events, expected_revision = nil, max_retries: 0)
           retrying_on_network_failures(max_retries) do
-            append_to_stream(stream_name, events, expected_version)
+            append_to_stream(stream_name, events, expected_revision)
           end
         end
 
@@ -98,58 +98,58 @@ module Akasha
         end
 
         def auth_headers
-          if @username && @password
-            auth = Base64.urlsafe_encode64([@username, @password].join(':'))
-            {
-              'Authorization' => "Basic #{auth}"
-            }
-          else
-            {}
-          end
+          return {} unless @username && @password
+          auth = Base64.urlsafe_encode64([@username, @password].join(':'))
+          { 'Authorization' => "Basic #{auth}" }
         end
 
         def retrying_on_network_failures(max_retries)
-          with_retries(base_sleep_seconds: MIN_RETRY_INTERVAL,
-                       max_sleep_seconds: MAX_RETRY_INTERVAL,
+          with_retries(base_sleep_seconds: MIN_RETRY_INTERVAL, max_sleep_seconds: MAX_RETRY_INTERVAL,
                        max_tries: 1 + max_retries,
                        rescue: [Faraday::TimeoutError, Faraday::ConnectionFailed]) do
             yield
           end
         end
 
-        def append_to_stream(stream_name, events, _expected_version = nil)
+        def append_to_stream(stream_name, events, expected_revision)
           @conn.post("/streams/#{stream_name}") do |req|
             req.headers = {
               'Content-Type' => 'application/vnd.eventstore.events+json',
-              # 'ES-ExpectedVersion' => expected_version
+              'ES-ExpectedVersion' => expected_revision
             }
             req.body = to_event_data(events).to_json
           end
+        rescue HttpClientError => e
+          raise unless e.status_code == 400
+          actual_version = e.response_headers['ES-CurrentVersion']
+          raise Akasha::ConflictError,
+                "Race condition; expected last event version: #{expected_revision} actual: #{actual_version}"
         end
 
         def safe_read_events(stream_name, start, count, poll)
-          resp = @conn.get("/streams/#{stream_name}/#{start}/forward/#{count}") do |req|
-            req.headers = {
-              'Accept' => 'application/json'
-            }
-            req.headers['ES-LongPoll'] = poll if poll&.positive?
-            req.params['embed'] = 'body'
-          end
-          event_data = resp.body['entries']
-          to_events(event_data)
-        rescue HttpClientError => e
-          return [] if e.status_code == 404
-          raise
-        rescue URI::InvalidURIError
-          raise InvalidStreamNameError, "Invalid stream name: #{stream_name}"
+          handling_read_exceptions(stream_name) do
+            resp = @conn.get("/streams/#{stream_name}/#{start}/forward/#{count}") do |req|
+              req.headers = {
+                'Accept' => 'application/json'
+              }
+              req.headers['ES-LongPoll'] = poll if poll&.positive?
+              req.params['embed'] = 'body'
+            end
+            to_events(resp.body['entries'])
+          end || []
         end
 
         def safe_read_metadata(stream_name)
-          metadata = request(:get, "/streams/#{stream_name}/metadata", nil, 'Accept' => 'application/json')
-          metadata.symbolize_keys
+          handling_read_exceptions(stream_name) do
+            metadata = request(:get, "/streams/#{stream_name}/metadata", nil, 'Accept' => 'application/json')
+            metadata.symbolize_keys
+          end || {}
+        end
+
+        def handling_read_exceptions(stream_name)
+          yield
         rescue HttpClientError => e
-          return {} if e.status_code == 404
-          raise
+          raise unless e.status_code == 404
         rescue URI::InvalidURIError
           raise InvalidStreamNameError, "Invalid stream name: #{stream_name}"
         end

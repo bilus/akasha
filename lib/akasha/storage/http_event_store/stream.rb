@@ -8,6 +8,7 @@ module Akasha
         # Create a stream object for accessing a ES stream.
         # Does not create the underlying stream itself.
         # Use the `max_retries` option to choose how many times to retry in case
+        # of network failures.
         def initialize(client, stream_name, max_retries: 0)
           @client = client
           @name = stream_name
@@ -15,10 +16,14 @@ module Akasha
         end
 
         # Appends `events` to the stream.
-        # of network failures.
-        def write_events(events)
+        # You can specify `revision` to use optimistic concurrency control:
+        #    - nil  - just append, no concurrency control,
+        #    - -1   - the stream doesn't exist,
+        #    - >= 0 - expected revision of the last event in stream.
+        def write_events(events, revision: nil)
           return if events.empty?
-          @client.retry_append_to_stream(@name, events, max_retries: @max_retries)
+          expected_version = revision.nil? ? -2 : revision
+          @client.retry_append_to_stream(@name, events, expected_version, max_retries: @max_retries)
         end
 
         # Reads events from the stream starting from `start` inclusive.
