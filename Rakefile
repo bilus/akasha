@@ -9,9 +9,10 @@ namespace 'ci' do
     spec_path = gemspecs.first
     gemspec = Bundler.load_gemspec(spec_path)
     version_tag = "v#{gemspec.version}"
-    return if `git tag`.split(/\n/).include?(version_tag)
-    puts "Tagging with tag #{version_tag}"
-    `git tag #{version_tag}`
+    unless `git tag`.split(/\n/).include?(version_tag)
+      puts "Tagging with tag #{version_tag}"
+      `git tag #{version_tag}`
+    end
   end
 end
 
