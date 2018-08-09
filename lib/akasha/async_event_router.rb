@@ -42,7 +42,7 @@ module Akasha
           end
         end
       end
-    rescue RutimeError => e
+    rescue RuntimeError => e
       puts e # TODO: Decide on a strategy.
       raise
     end

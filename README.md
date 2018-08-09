@@ -65,7 +65,13 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org). While on a branch, add ".pre" to the version number.
+
+Release rules:
+
+1. All merges to master build & push gems and git tags with versions.
+2. If `version.rb` is pre-release version, e.g. `4.0.0.pre`, Travis will automatically append the build number and push it.
+3. If `version.rb` is a regular version, e.g. `5.0.0`, Travis will not append build number. (I haven't tested it yet.)
 
 
 ## Running tests

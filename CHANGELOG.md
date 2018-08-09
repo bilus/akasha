@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.5.0
+
+* Apply changeset when command is executed to update the aggregate's state.
+
+* Fix events applied in reverse order when reading from Eventstore.
+
+
 ## Version 0.4.0
 
 * Support for optimistic concurrency for commands. Enabled by default, will raise `ConflictError` if the aggregate
