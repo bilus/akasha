@@ -16,14 +16,29 @@ describe Akasha::Repository do
 
     context 'for an existing aggregate' do
       context 'within the same namespace' do
-        before do
+        it 'loads the aggregate' do
           item.name = 'foo'
           subject.save_aggregate(item)
-        end
-
-        it 'loads the aggregate' do
           item = subject.load_aggregate(Item, 'item-1')
           expect(item.name).to eq 'foo'
+        end
+
+        it 'applies events in the right order' do
+          item.name = 'foo'
+          item.name = 'bar'
+          subject.save_aggregate(item)
+          item = subject.load_aggregate(Item, 'item-1')
+          expect(item.name).to eq 'bar'
+        end
+
+        it 'correctly handles pagination' do
+          100.times do
+            item.name = 'foo'
+          end
+          item.name = 'bar'
+          subject.save_aggregate(item)
+          item = subject.load_aggregate(Item, 'item-1')
+          expect(item.name).to eq 'bar'
         end
       end
 

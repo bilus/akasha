@@ -135,7 +135,7 @@ module Akasha
               req.headers['ES-LongPoll'] = poll if poll&.positive?
               req.params['embed'] = 'body'
             end
-            to_events(resp.body['entries'])
+            to_events(resp.body['entries']).reverse!
           end || []
         end
 

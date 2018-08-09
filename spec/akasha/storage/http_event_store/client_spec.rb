@@ -16,7 +16,7 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
 
     it 'saves all events' do
       subject.retry_append_to_stream(stream, events)
-      expect(actual_events.map(&:name)).to eq events.map(&:name).reverse
+      expect(actual_events.map(&:name)).to eq events.map(&:name)
     end
 
     it 'can save event without data' do
@@ -51,7 +51,7 @@ describe Akasha::Storage::HttpEventStore::Client, integration: true do
 
     it 'retrieves saved data oldest-first' do
       expect(subject.retry_read_events_forward(stream, 0, 999).map(&:data))
-        .to match [{ foo: 'bar' }, { baz: 'qux' }].reverse
+        .to match [{ foo: 'bar' }, { baz: 'qux' }]
     end
 
     it 'returns empty array if stream does not exist' do

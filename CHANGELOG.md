@@ -4,6 +4,8 @@
 
 * Apply changeset when command is executed to update the aggregate's state.
 
+* Fix events applied in reverse order when reading from Eventstore.
+
 
 ## Version 0.4.0
 
