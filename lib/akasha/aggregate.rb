@@ -19,11 +19,12 @@ module Akasha
   class Aggregate
     include SyntaxHelpers
 
-    attr_reader :changeset, :revision
+    attr_reader :id, :changeset, :revision
 
     def initialize(id)
       @revision = -1 # No stream exists.
-      @changeset = Changeset.new(id)
+      @id = id
+      @changeset = Changeset.new(self)
     end
 
     # Replay events, building up the state of the aggregate.
@@ -33,7 +34,7 @@ module Akasha
         method_name = event_handler(event)
         public_send(method_name, event.data) if respond_to?(method_name)
       end
-      @revision = events.last&.revision.to_i
+      @revision = events.last&.revision.to_i if events.last.respond_to?(:revision)
     end
 
     private

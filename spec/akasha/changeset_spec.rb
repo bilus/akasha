@@ -1,6 +1,6 @@
 describe Akasha::Changeset do
-  subject { described_class.new(aggregate_id) }
-  let(:aggregate_id) { '204921b4-091a-41f1-85bf-126b9da585da' }
+  subject { described_class.new(aggregate) }
+  let(:aggregate) { Item.new('204921b4-091a-41f1-85bf-126b9da585da') }
 
   before do
     Timecop.freeze
@@ -19,7 +19,12 @@ describe Akasha::Changeset do
 
     it "adds aggregate id to each event's metadata" do
       subject.append(:something_happened)
-      expect(subject.events.first.metadata[:aggregate_id]).to eq aggregate_id
+      expect(subject.events.first.metadata[:aggregate_id]).to eq aggregate.id
+    end
+
+    it 'applies event to the aggregate' do
+      subject.append(:name_changed, old_name: 'old_name', new_name: 'new_name')
+      expect(aggregate.name).to eq 'new_name'
     end
   end
 
