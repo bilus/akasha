@@ -1,4 +1,0 @@
-source 'https://rubygems.org'
-
-gem 'akasha', path: '../../'
-gem 'sinatra', '~>2', '>2.0.1'
